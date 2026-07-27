@@ -17,8 +17,12 @@
   --border: rgba(255,255,255,0.09);
   --border-strong: rgba(255,255,255,0.16);
   --text:#f4f5f9;
-  --text-dim: rgba(244,245,249,0.68);
-  --text-dimmer: rgba(244,245,249,0.46);
+  /* Round 7: these were 0.68 / 0.46. Round 6 raised them only inside the 900px
+     block, on the assumption that on desktop the aurora blobs sit at the edges.
+     They don't — at 1440 the 520-640px blobs cover the content columns, and
+     12.5px labels over the magenta/teal measured 2.2-2.4:1. */
+  --text-dim: rgba(244,245,249,0.78);
+  --text-dimmer: rgba(244,245,249,0.70);
   --violet:#8b5cf6;
   --cyan:#22d3ee;
   --magenta:#ec4899;
@@ -78,13 +82,16 @@ button{font-family:inherit;cursor:pointer;}
   background:var(--bg);
 }
 .aurora span{
-  position:absolute;border-radius:50%;filter:blur(90px);opacity:0.55;
+  position:absolute;border-radius:50%;filter:blur(90px);opacity:0.36;
   will-change:transform;
 }
+/* One scrim over the whole of main rather than per-section: a per-section scrim
+   puts a visible step at every boundary. */
+main{background:rgba(5,6,11,0.20);}
 .aurora span:nth-child(1){width:640px;height:640px;background:var(--violet);top:-220px;left:-160px;animation:float1 22s ease-in-out infinite;}
 .aurora span:nth-child(2){width:560px;height:560px;background:var(--cyan);top:10%;right:-220px;animation:float2 26s ease-in-out infinite;}
 .aurora span:nth-child(3){width:520px;height:520px;background:var(--magenta);bottom:-200px;left:12%;animation:float3 24s ease-in-out infinite;}
-.aurora span:nth-child(4){width:420px;height:420px;background:var(--amber);opacity:0.18;bottom:5%;right:8%;animation:float1 30s ease-in-out infinite reverse;}
+.aurora span:nth-child(4){width:420px;height:420px;background:var(--amber);opacity:0.11;bottom:5%;right:8%;animation:float1 30s ease-in-out infinite reverse;}
 @keyframes float1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(60px,80px) scale(1.12);}}
 @keyframes float2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-70px,60px) scale(0.9);}}
 @keyframes float3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(40px,-70px) scale(1.08);}}
@@ -136,6 +143,58 @@ nav.links > a{
 nav.links > a:hover{color:var(--text);background:rgba(255,255,255,0.06);}
 .chev{font-size:10px;transition:transform .3s var(--ease);opacity:0.7;}
 
+/* ---------- HEADER ENTRANCE ----------
+   Driven by a class hard-coded in the markup rather than added by JS: the class is
+   present at first paint, so `animation-fill-mode:both` holds the hidden start state
+   with no flash of a fully-drawn header. Without JS, and without CSS animation
+   support, the untouched rules above already render the finished state. */
+@keyframes navPill{from{opacity:0;transform:translateY(-18px) scaleX(.94);}to{opacity:1;transform:none;}}
+@keyframes navItem{from{opacity:0;transform:translateY(-14px);filter:blur(6px);}to{opacity:1;transform:none;filter:none;}}
+@keyframes navDot{0%{transform:scale(0);box-shadow:0 0 0 0 rgba(139,92,246,0);}
+  60%{transform:scale(1.5);box-shadow:0 0 26px 7px rgba(139,92,246,0.75);}
+  100%{transform:scale(1);box-shadow:0 0 16px 2px rgba(139,92,246,0.7);}}
+/* one pass of light across the pill, after the items have landed */
+@keyframes navSheen{from{background-position:180% 0;}to{background-position:-80% 0;}}
+
+header.nav.nav-lit .nav-inner{animation:navPill .95s var(--ease) both;transform-origin:50% 0;}
+header.nav.nav-lit .brand>span{animation:navItem .8s var(--ease) .22s both;}
+header.nav.nav-lit .brand .dot{animation:navDot .9s cubic-bezier(.2,.9,.3,1) .1s both;}
+header.nav.nav-lit nav.links>a{animation:navItem .78s var(--ease) both;}
+header.nav.nav-lit nav.links>a:nth-child(1){animation-delay:.34s;}
+header.nav.nav-lit nav.links>a:nth-child(2){animation-delay:.42s;}
+header.nav.nav-lit nav.links>a:nth-child(3){animation-delay:.50s;}
+header.nav.nav-lit nav.links>a:nth-child(4){animation-delay:.58s;}
+header.nav.nav-lit nav.links>a:nth-child(5){animation-delay:.66s;}
+header.nav.nav-lit nav.links>a:nth-child(6){animation-delay:.74s;}
+/* The right-hand group holds the only conversion CTA on the first screen, so its ladder
+   overlaps the tail of the links rather than queueing behind it: at .80/.88/.96 with a
+   .78s duration the button did not finish landing until ~1.74s, which is a long time for
+   a primary CTA to be invisible. Starting at .58 and shortening the travel puts it fully
+   on screen by ~1.42s while still reading as one continuous left-to-right sweep. */
+header.nav.nav-lit .nav-right>*{animation:navItem .68s var(--ease) both;}
+header.nav.nav-lit .nav-right>*:nth-child(1){animation-delay:.58s;}
+header.nav.nav-lit .nav-right>*:nth-child(2){animation-delay:.66s;}
+header.nav.nav-lit .nav-right>*:nth-child(3){animation-delay:.74s;}
+/* The sheen must be clipped to the pill's rounded shape, but `overflow:hidden` on
+   `.nav-inner` is not an option: `.lang-menu` is an absolutely-positioned child that
+   hangs *below* the pill, and hiding the overflow amputates the whole dropdown. So the
+   pseudo-element covers exactly the pill box, inherits its border-radius (which clips
+   its own background), and the light travels by moving the background-position inside
+   that fixed box rather than by translating the box itself. */
+.nav-inner{position:relative;}
+.nav-inner::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  border-radius:inherit;
+  background:linear-gradient(100deg,transparent 34%,rgba(255,255,255,0.13) 46%,rgba(190,220,255,0.19) 52%,transparent 64%);
+  background-size:260% 100%;background-repeat:no-repeat;background-position:180% 0;}
+header.nav.nav-lit .nav-inner::before{animation:navSheen 1.5s cubic-bezier(.3,.6,.2,1) 1.05s 1 both;}
+
+/* nav hover: a gradient rule wipes out from the centre instead of a flat tint */
+nav.links>a{position:relative;}
+nav.links>a::after{content:"";position:absolute;left:14px;right:14px;bottom:5px;height:2px;border-radius:2px;
+  background:var(--grad);transform:scaleX(0);transform-origin:50% 50%;
+  transition:transform .38s cubic-bezier(.16,.84,.28,1);}
+nav.links>a:hover::after,nav.links>a:focus-visible::after{transform:scaleX(1);}
+
 .nav-right{display:flex;align-items:center;gap:8px;}
 .lang-switch{position:relative;}
 .lang-btn{
@@ -146,6 +205,13 @@ nav.links > a:hover{color:var(--text);background:rgba(255,255,255,0.06);}
 .lang-menu{
   position:absolute;top:calc(100% + 10px);right:0;min-width:184px;padding:8px;
   max-height:70vh;overflow-y:auto;
+  /* `.glass` is a 4.5%-white wash: over the hero headline, blur alone leaves the
+     giant glyphs showing straight through the panel. A dropdown needs to read as
+     a surface, not a filter — own near-opaque dark fill, blur only for the edges. */
+  background:linear-gradient(180deg, rgba(14,16,26,0.965), rgba(9,10,18,0.975));
+  border:1px solid rgba(255,255,255,0.13);
+  backdrop-filter:blur(34px) saturate(150%);
+  -webkit-backdrop-filter:blur(34px) saturate(150%);
   opacity:0;visibility:hidden;transform:translateY(8px);pointer-events:none;
   transition:opacity .28s var(--ease), transform .28s var(--ease), visibility .28s;
   box-shadow:0 24px 60px -18px rgba(0,0,0,0.6);
@@ -305,7 +371,10 @@ h1,h2,h3,h4,p,li,.eyebrow,.lbl{overflow-wrap:break-word;}
 .contact-wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:52px;}
 .contact-info-card{padding:34px;background:rgba(12,14,24,0.4);border-color:rgba(255,255,255,0.13);}
 .info-row{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
-.info-row:last-child{border-bottom:none;}
+/* :last-child never matches here — .entity-block is the card's last child, so the
+   final info row kept its rule and sat a few px above the entity block's own
+   border-top. Two rules with empty space between them read as a missing row. */
+.info-row:last-of-type{border-bottom:none;}
 .info-row .ic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;}
 .info-row .lbl{font-size:11.5px;color:var(--text-dimmer);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
 .info-row .val{font-size:15px;font-weight:500;}
@@ -353,8 +422,14 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 /* ===== FULL-BLEED VIDEO BAND ===== */
 .band{position:relative;overflow:hidden;padding:0;background:linear-gradient(120deg,#140f30,#0a2030 55%,#2a0f26);display:flex;align-items:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 .band video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:linear-gradient(140deg,#1a1440,#0b2438 55%,#3a1330);opacity:0;transition:opacity 1.2s var(--ease);}
-.band video.loaded{opacity:.92;}
-.band::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,11,0.9) 0%,rgba(5,6,11,0.6) 44%,rgba(5,6,11,0.08) 100%),linear-gradient(180deg,rgba(5,6,11,0.2),rgba(5,6,11,0.42));}
+.band video.loaded{opacity:.97;}
+/* Type is left-aligned here, so the wash stays weighted left and the right half of
+   the frame is left almost untouched. */
+/* Measured, not eyeballed. Brightening the clip pushed the worst-case background under
+   the left-hand copy to ~(142,138,130), which drops 17px text at 0.8 alpha to 3.2:1.
+   The wash therefore holds a dark plateau across the whole text column (roughly 0–55%
+   of the width) and only opens up to the right of it, where nothing is set. */
+.band::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,11,0.88) 0%,rgba(5,6,11,0.80) 40%,rgba(5,6,11,0.44) 78%,rgba(5,6,11,0.16) 100%),linear-gradient(180deg,rgba(5,6,11,0.14),rgba(5,6,11,0.32));}
 .band .container{position:relative;z-index:2;padding-top:96px;padding-bottom:96px;}
 .band h2{font-size:clamp(25px,3.5vw,42px);max-width:780px;line-height:1.16;text-shadow:0 2px 24px rgba(0,0,0,0.6);}
 .band p{margin-top:18px;font-size:17px;color:var(--text);opacity:.88;max-width:620px;text-shadow:0 1px 16px rgba(0,0,0,0.55);}
@@ -363,15 +438,19 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 /* ===== PROCESS VIDEO STRIP ===== */
 .proc-strip{position:relative;height:180px;background:linear-gradient(120deg,#221a45,#102c3e 55%,#3a1330);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:48px;}
 .proc-strip video{width:100%;height:100%;object-fit:cover;background:linear-gradient(120deg,#221a45,#102c3e);opacity:0;transition:opacity 1.2s var(--ease);}
-.proc-strip video.loaded{opacity:.8;}
-.proc-strip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,6,11,0.3),rgba(5,6,11,0.85)),linear-gradient(90deg,rgba(139,92,246,0.22),rgba(34,211,238,0.1));}
+/* No type sits on this strip — it is pure texture, so it can run nearly clean. */
+.proc-strip video.loaded{opacity:.96;}
+.proc-strip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,6,11,0.12),rgba(5,6,11,0.58)),linear-gradient(90deg,rgba(139,92,246,0.16),rgba(34,211,238,0.07));}
 
 /* ===== CONTACT BACKGROUND VIDEO ===== */
 #contact{position:relative;overflow:hidden;}
 #contact .bg-video{position:absolute;inset:0;z-index:0;}
 #contact .bg-video video{width:100%;height:100%;object-fit:cover;background:#05060b;opacity:0;transition:opacity 1.6s var(--ease);}
-#contact .bg-video video.loaded{opacity:.8;}
-#contact .bg-video::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 10%,rgba(5,6,11,0.28),rgba(5,6,11,0.62) 70%),linear-gradient(180deg,rgba(5,6,11,0.34),rgba(5,6,11,0.55));}
+#contact .bg-video video.loaded{opacity:.92;}
+/* The eyebrow and form labels sit right under the radial's bright centre, so the inner
+   stop cannot stay near-clear the way the hero's can — there the only thing over the
+   footage is 38-72px white. */
+#contact .bg-video::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 10%,rgba(5,6,11,0.56),rgba(5,6,11,0.72) 70%),linear-gradient(180deg,rgba(5,6,11,0.24),rgba(5,6,11,0.48));}
 #contact>.container{position:relative;z-index:1;}
 #contact .section-head h2,#contact .section-head p{text-shadow:0 2px 22px rgba(0,0,0,0.65);}
 #contact .field input,#contact .field textarea{background:rgba(255,255,255,0.05);}
@@ -450,7 +529,11 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 /* Touch sizing and legibility floors. Small uppercase labels read fine on a
    desktop monitor and turn to grit on a phone; links need a real tap area. */
 @media(max-width:900px){
-  .hero-visual .badge .b-label,.info-row .lbl,.eyebrow,.stat-cell .lbl,
+  /* NB: this list named `.hero-visual .badge .b-label` until round 7 renamed the
+     hero badge to `.hero-badge`. The selector then matched nothing and the label
+     silently inherited 12.5px from `.hero-badge`, dropping back under the floor.
+     Direct rule beats inheritance, so this wins regardless of block order. */
+  .hero-badge .b-label,.info-row .lbl,.eyebrow,.stat-cell .lbl,
   .case-stat .lbl,.region-block h4,.footer-col h4,.footer-bottom p{font-size:13px;}
   .footer-col a{padding:11px 0;font-size:15px;}
   /* long German/Polish compounds break mid-word in narrow cells; hyphenate
@@ -489,6 +572,13 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 .mobile-drawer.open{opacity:1;visibility:visible;}
 .drawer-panel{
   position:absolute;top:14px;right:14px;left:14px;padding:26px;
+  /* same reasoning as `.lang-menu`: a menu is a surface, not a filter. The drawer sits
+     over a 0.75 scrim so it was never as transparent as the language list, but it
+     inherits the same 4.5%-white `.glass` wash and should read the same way. */
+  background:linear-gradient(180deg, rgba(14,16,26,0.965), rgba(9,10,18,0.975));
+  border:1px solid rgba(255,255,255,0.13);
+  backdrop-filter:blur(34px) saturate(150%);
+  -webkit-backdrop-filter:blur(34px) saturate(150%);
   max-height:calc(100vh - 28px);max-height:calc(100dvh - 28px);overflow-y:auto;-webkit-overflow-scrolling:touch;
   transform:translateY(-14px);transition:transform .35s var(--ease);
 }
@@ -497,14 +587,252 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 /* the header CTA is hidden on phones, so the drawer has to carry it */
 .drawer-panel a.drawer-cta{display:block;margin-top:20px;padding:15px 18px;text-align:center;border-bottom:none;font-size:16px;}
 .drawer-close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+
+/* =====================================================================
+   v2 — cinematic hero, centred composition, scroll choreography
+   Appended last so it overrides the base sheet at equal specificity.
+   ===================================================================== */
+
+/* ---------- scroll progress ---------- */
+.scroll-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;background:rgba(255,255,255,0.05);pointer-events:none;}
+.scroll-progress i{display:block;height:100%;width:0;background:var(--grad);background-size:200% auto;
+  box-shadow:0 0 14px rgba(139,92,246,0.75);animation:gradShift 8s ease infinite;}
+
+/* ---------- HERO: full-bleed footage, centred type ---------- */
+.hero{
+  padding:170px 0 96px;min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;overflow:hidden;
+}
+.hero>.container{position:relative;z-index:2;width:100%;}
+.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;
+  background:linear-gradient(150deg,#1b1142 0%,#0a1c33 46%,#2b0f28 100%);}
+.hero-bg video{
+  position:absolute;top:50%;left:50%;width:100%;height:100%;
+  object-fit:cover;transform:translate(-50%,-50%) scale(1.14);
+  opacity:0;transition:opacity 1.6s var(--ease);will-change:transform;
+}
+.hero-bg video.loaded{opacity:.84;}
+/* The scrim earns its keep only where type actually sits. Previously it opened at
+   0.88 black across the whole top edge, which killed the footage exactly where the
+   frame is most interesting; the headline is 38-72px white and needs almost none of
+   it. Keep a soft pool behind the centre column, let the edges breathe. */
+.hero-scrim{position:absolute;inset:0;background:
+  radial-gradient(ellipse 78% 52% at 50% 52%, rgba(5,6,11,0.50), rgba(5,6,11,0.10) 72%, rgba(5,6,11,0) 100%),
+  radial-gradient(ellipse 96% 70% at 50% 46%, rgba(5,6,11,0.04), rgba(5,6,11,0.52) 80%),
+  linear-gradient(180deg, rgba(5,6,11,0.66) 0%, rgba(5,6,11,0.10) 22%, rgba(5,6,11,0.34) 64%, var(--bg) 100%);}
+.hero-inner{display:block;max-width:960px;margin:0 auto;}
+.hero h1{font-size:clamp(38px,5.6vw,72px);}
+.hero .lead{font-size:18.5px;color:rgba(244,245,249,0.9);margin:24px auto 0;max-width:660px;
+  text-shadow:0 1px 22px rgba(0,0,0,0.62);}
+.hero .eyebrow{background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  color:rgba(244,245,249,0.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+.hero-ctas{justify-content:center;margin-top:38px;}
+.hero-badge{display:inline-flex;align-items:center;gap:11px;margin-top:30px;padding:10px 20px;
+  border-radius:100px;font-size:13px;}
+.hero-badge .b-dot{width:7px;height:7px;border-radius:50%;background:var(--grad);flex:none;
+  box-shadow:0 0 0 4px rgba(139,92,246,0.16);animation:pulseDot 2.6s ease-in-out infinite;}
+.hero-badge .b-num{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;}
+.hero-badge .b-label{color:var(--text-dim);}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 3px rgba(139,92,246,0.16);}50%{box-shadow:0 0 0 8px rgba(139,92,246,0.04);}}
+.hero h1,.hero .lead,.hero .eyebrow{text-wrap:balance;}
+.stats-strip{margin-top:76px;position:relative;z-index:2;}
+.stat-cell{background:rgba(8,9,16,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.scroll-cue{position:absolute;left:50%;transform:translateX(-50%);bottom:26px;z-index:3;
+  width:26px;height:42px;border:1px solid var(--border-strong);border-radius:14px;
+  display:flex;justify-content:center;padding-top:8px;background:rgba(8,9,16,0.35);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.scroll-cue span{width:3px;height:8px;border-radius:2px;background:var(--grad);}
+.scroll-cue span{animation:cueDrop 2s var(--ease) infinite;}
+@keyframes cueDrop{0%{opacity:0;transform:translateY(0);}25%{opacity:1;}70%{opacity:1;transform:translateY(15px);}100%{opacity:0;transform:translateY(17px);}}
+
+/* ---------- centred, proportional composition ---------- */
+.section-head.center{max-width:780px;margin-left:auto;margin-right:auto;text-align:center;margin-bottom:62px;}
+.section-head.center p{margin-left:auto;margin-right:auto;max-width:640px;}
+section{padding:132px 0;}
+
+.svc-grid{gap:22px;}
+/* Service cards keep a left rag: their copy runs 3-5 lines, and centring long
+   body text next to a centred heading is what makes a grid look ragged. The
+   short-copy .why-card grid below is centred instead. */
+.svc-card{display:flex;flex-direction:column;position:relative;text-align:left;}
+.svc-card p{margin-top:2px;}
+/* The info card and the form sit in the same row: let the registered-entity
+   block fall to the bottom so the shorter column fills its box instead of
+   leaving a void under the text. */
+.contact-info-card{display:flex;flex-direction:column;}
+.contact-info-card .entity-block{margin-top:auto;}
+
+.cov-wrap{grid-template-columns:1fr 1fr;gap:60px;}
+.globe-frame{max-width:430px;margin:0 auto;
+  background:radial-gradient(circle at 40% 35%, #241a4d, #05060b 70%);}
+.cov-chips{justify-content:center;margin-top:22px;}
+.region-block h4{text-align:center;}
+.country-grid{justify-content:center;}
+
+.case-grid{grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+.case-video{background:linear-gradient(160deg,#3a1a45,#12203f 60%,#1a3a3a);}
+.case-list li{text-align:left;}
+.case-stat{text-align:center;}
+
+.timeline{gap:20px;perspective:1000px;}
+.timeline::before{display:none;}
+/* ---------- TIMELINE RAIL ----------
+   The rail reads as a route being drawn, not as a progress bar: a dim track, a bright
+   gradient that grows with scroll, a travelling sheen inside that gradient, and a
+   comet head pinned to the leading edge. Width is driven from the scroll handler. */
+.tl-rail{position:absolute;top:25px;left:12.5%;right:12.5%;height:3px;border-radius:3px;z-index:0;
+  background:linear-gradient(90deg,rgba(255,255,255,0.05),rgba(255,255,255,0.11),rgba(255,255,255,0.05));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03);overflow:visible;}
+.tl-fill{position:absolute;top:0;left:0;bottom:0;width:0;border-radius:3px;
+  background:linear-gradient(90deg,#8b5cf6,#22d3ee 42%,#8b5cf6 68%,#f472b6);
+  background-size:220% 100%;
+  box-shadow:0 0 14px rgba(139,92,246,0.65), 0 0 34px rgba(34,211,238,0.28);
+  animation:railFlow 6s linear infinite;
+  transition:width .12s linear;}
+@keyframes railFlow{from{background-position:0 0;}to{background-position:-220% 0;}}
+/* comet head — only shows once the fill has actually started moving */
+.tl-fill::after{content:"";display:none;position:absolute;right:-5px;top:50%;width:11px;height:11px;border-radius:50%;
+  transform:translateY(-50%);background:#e9f6ff;
+  box-shadow:0 0 10px 2px rgba(255,255,255,0.85),0 0 26px 8px rgba(34,211,238,0.55),0 0 46px 16px rgba(139,92,246,0.32);
+  animation:cometPulse 1.6s ease-in-out infinite;}
+.tl-fill.go::after{display:block;}
+@keyframes cometPulse{0%,100%{opacity:.85;transform:translateY(-50%) scale(1);}50%{opacity:1;transform:translateY(-50%) scale(1.28);}}
+
+/* nodes light up as the fill sweeps past them (class added by the scroll handler) */
+.tl-num{transition:background .55s var(--ease), border-color .55s var(--ease),
+  box-shadow .55s var(--ease), transform .55s cubic-bezier(.16,.84,.28,1);}
+.tl-num::before{content:"";position:absolute;inset:-6px;border-radius:50%;pointer-events:none;
+  border:1px solid rgba(139,92,246,0.55);opacity:0;transform:scale(.82);
+  transition:opacity .5s var(--ease), transform .5s var(--ease);}
+.tl-step .tl-num.lit{border-color:rgba(167,139,250,0.75);transform:scale(1.07);
+  background:linear-gradient(135deg,rgba(139,92,246,0.5),rgba(34,211,238,0.28));
+  box-shadow:0 0 0 1px rgba(167,139,250,0.35),0 10px 34px -8px rgba(139,92,246,0.75);}
+.tl-num.lit::before{opacity:1;transform:scale(1);animation:nodeRing 2.4s var(--ease) infinite;}
+@keyframes nodeRing{0%{opacity:.85;transform:scale(1);}70%{opacity:0;transform:scale(1.5);}100%{opacity:0;transform:scale(1.5);}}
+
+.tl-step{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.tl-num{margin-left:auto;margin-right:auto;}
+/* Alignment: headings wrap to one line in some languages and two in others, which used
+   to push each column's paragraph to a different baseline and made the row look ragged.
+   Reserving two lines of heading height locks every paragraph to the same start line;
+   `balance`/`pretty` stop the last line from collapsing to a single orphan word. */
+/* NB: no flex/grid here — `text-wrap:balance` does not apply to the anonymous box a
+   flex container wraps its text in, and balancing is the whole point of the rule. */
+.tl-step h3{text-wrap:balance;line-height:1.35;min-height:2.7em;margin-bottom:10px;}
+.tl-step p{text-wrap:pretty;max-width:30ch;margin-left:auto;margin-right:auto;}
+
+.why-grid{gap:20px;perspective:1000px;}
+.why-card{text-align:center;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+.svc-grid{perspective:1200px;}
+
+.contact-wrap{grid-template-columns:1fr 1fr;gap:30px;align-items:stretch;}
+#contact .bg-video{background:linear-gradient(160deg,#0b1230,#05060b 60%,#1a1030);}
+
+/* pointer-tracked glow on cards */
+.svc-card::after,.why-card::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  opacity:0;transition:opacity .45s var(--ease);pointer-events:none;
+  background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%), rgba(139,92,246,0.20), transparent 62%);}
+.svc-card:hover::after,.why-card:hover::after{opacity:1;}
+
+/* ---------- reveal choreography ---------- */
+.reveal{transform:translateY(38px);}
+.reveal[data-rv="up"]{opacity:0;transform:translateY(42px);}
+.reveal[data-rv="up"].is-visible{opacity:1;transform:none;}
+
+.stagger{perspective:1100px;}
+.stagger > *{transform:translateY(48px) rotateX(-11deg) scale(.965);filter:blur(5px);transform-origin:50% 0%;
+  transition:opacity .85s var(--ease), transform .95s var(--ease), filter .8s var(--ease);}
+.stagger.is-visible > *{transform:none;filter:none;}
+.stagger.is-visible > *:nth-child(1){transition-delay:.02s;}
+.stagger.is-visible > *:nth-child(2){transition-delay:.09s;}
+.stagger.is-visible > *:nth-child(3){transition-delay:.16s;}
+.stagger.is-visible > *:nth-child(4){transition-delay:.23s;}
+.stagger.is-visible > *:nth-child(5){transition-delay:.30s;}
+.stagger.is-visible > *:nth-child(6){transition-delay:.37s;}
+.stagger.is-visible > *:nth-child(7){transition-delay:.44s;}
+.stagger.is-visible > *:nth-child(8){transition-delay:.51s;}
+/* the rail is decorative, it must not be staggered like a card */
+.timeline > .tl-rail{opacity:1 !important;transform:none !important;filter:none !important;transition:none;}
+
+/* word-by-word headline reveal */
+h1,.section-head h2,.band h2{perspective:900px;}
+/* Deliberately slow. At 0.052s stagger and 0.8s travel the reveal was over before
+   the eye caught it — it read as a load hiccup rather than as motion. Longer travel,
+   wider stagger and more distance to cover make each word legible as it lands. */
+.w{display:inline-block;max-width:100%;overflow-wrap:anywhere;hyphens:auto;
+  opacity:0;transform:translateY(0.92em) rotateX(-78deg) scale(0.94);transform-origin:50% 100%;filter:blur(11px);
+  transition:opacity 1.15s var(--ease), transform 1.25s cubic-bezier(.16,.84,.28,1), filter 1.05s var(--ease);
+  transition-delay:var(--d,0s);}
+.w.in{opacity:1;transform:none;filter:none;}
+.gw{background:var(--grad);background-size:220% auto;-webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;animation:gradShift 8s ease infinite;}
+
+/* footage wipes in from the bottom edge */
+[data-vfx]:not(.hero-bg) video{clip-path:inset(0 0 100% 0);
+  transition:clip-path 1.15s var(--ease), opacity 1.2s var(--ease);}
+[data-vfx]:not(.hero-bg).vfx-in video{clip-path:inset(0 0 0 0);}
+
+/* counters land with a small pop */
+.num.pop{animation:numPop .5s var(--ease);}
+@keyframes numPop{0%{transform:scale(.86);}60%{transform:scale(1.04);}100%{transform:scale(1);}}
+
+/* country tags cascade */
+.country-tag{opacity:0;transform:translateY(14px) scale(.94);
+  transition:opacity .5s var(--ease), transform .55s var(--ease), background .3s, border-color .3s;}
+.country-tag.in{opacity:1;transform:none;}
+
+/* ---------- responsive ---------- */
+@media(max-width:980px){
+  .cov-wrap,.case-grid,.contact-wrap{grid-template-columns:1fr;}
+  .tl-rail{display:none;}
+}
+@media(max-width:900px){
+  .hero{padding:132px 0 78px;}
+  .hero .lead{font-size:16.5px;margin-top:20px;}
+  .hero-ctas{margin-top:30px;}
+  .hero-ctas .btn{flex:1 1 100%;}
+  .hero-badge{margin-top:24px;padding:9px 16px;font-size:12.5px;gap:9px;}
+  .stats-strip{margin-top:52px;}
+  .scroll-cue{display:none;}
+  section{padding:92px 0;}
+  .section-head.center{margin-bottom:44px;}
+  .hero-bg video.loaded{opacity:.70;}
+  /* 3D and blur are expensive on phones and the depth reads as jitter on a
+     small screen — keep the motion, drop the perspective and the filter. */
+  .stagger > *{transform:translateY(30px);filter:none;}
+  .w{transform:translateY(0.7em) scale(0.96);filter:none;}
+  .svc-card::after,.why-card::after{display:none;}
+}
+@media(max-width:560px){
+  .hero h1{font-size:clamp(30px,8.4vw,40px);}
+}
+
+/* motion is decoration; if the visitor asked for less, everything lands static */
+@media(prefers-reduced-motion:reduce){
+  .reveal,.reveal[data-rv="up"],.stagger > *,.w,.country-tag{
+    opacity:1 !important;transform:none !important;filter:none !important;transition:none !important;}
+  [data-vfx] video{clip-path:none !important;}
+  .hero-bg video{transform:translate(-50%,-50%) scale(1.02) !important;}
+  .aurora span,.scroll-cue span,.hero-badge .b-dot,.ring{animation:none !important;}
+  /* the header entrance is fill-mode:both, so killing the animation alone would freeze
+     it on the hidden start frame — the properties have to be reset explicitly too */
+  header.nav.nav-lit .nav-inner,header.nav.nav-lit .brand>span,header.nav.nav-lit .brand .dot,
+  header.nav.nav-lit nav.links>a,header.nav.nav-lit .nav-right>*,header.nav.nav-lit .nav-inner::before,
+  .tl-fill::after,.tl-num.lit::before{
+    animation:none !important;opacity:1 !important;transform:none !important;filter:none !important;}
+  html{scroll-behavior:auto;}
+}
+
 </style>
 </head>
 <body>
 
 <div class="aurora"><span></span><span></span><span></span><span></span></div>
 <div class="grain"></div>
+<div class="scroll-progress" aria-hidden="true"><i id="scrollBar"></i></div>
 
-<header class="nav" id="siteNav">
+<header class="nav nav-lit" id="siteNav">
   <div class="nav-inner">
     <a href="#top" class="brand">
       <span class="dot"></span>
@@ -567,26 +895,25 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 
   <!-- HERO -->
   <section class="hero">
-    <div class="container hero-inner">
-      <div>
-        <div class="eyebrow reveal" data-i18n="hero.eyebrow">Global supply chain partner since 2019</div>
-        <h1 class="reveal" data-i18n-html="hero.title">We build supply chains that move at the <span class="grad-text">speed of demand.</span></h1>
-        <p class="lead reveal" data-i18n="hero.sub">Procurement, warehousing and 24⁠–⁠48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.</p>
-        <div class="hero-ctas reveal">
-          <a href="#contact" class="btn btn-primary" data-i18n="hero.cta1">Book a Call</a>
-          <a href="#coverage" class="btn btn-ghost" data-i18n="hero.cta2">See Our Coverage</a>
-        </div>
+    <div class="hero-bg" data-vfx>
+      <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/35907888/15231435_1920_1080_25fps.mp4" data-src-m="https://videos.pexels.com/video-files/35907888/15231434_1280_720_25fps.mp4"></video>
+      <div class="hero-scrim"></div>
+    </div>
+    <div class="container hero-inner" id="heroInner">
+      <div class="eyebrow reveal" data-rv="up" data-i18n="hero.eyebrow">Global supply chain partner since 2019</div>
+      <h1 class="reveal" data-rv="words" data-i18n-html="hero.title">We build supply chains that move at the <span class="grad-text">speed of demand.</span></h1>
+      <p class="lead reveal" data-rv="up" data-i18n="hero.sub">Procurement, warehousing and 24⁠–⁠48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.</p>
+      <div class="hero-ctas reveal" data-rv="up">
+        <a href="#contact" class="btn btn-primary" data-i18n="hero.cta1">Book a Call</a>
+        <a href="#coverage" class="btn btn-ghost" data-i18n="hero.cta2">See Our Coverage</a>
       </div>
-      <div class="hero-visual reveal">
-        <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/39462/39462-360.mp4"></video>
-        <div class="overlay"></div>
-        <div class="badge glass">
-          <div><div class="b-num">24–48h</div><div class="b-label" data-i18n="hero.badge">Express delivery standard</div></div>
-          <div style="font-size:26px;">🚀</div>
-        </div>
+      <div class="hero-badge glass reveal" data-rv="up">
+        <span class="b-dot"></span>
+        <span class="b-num">24–48h</span>
+        <span class="b-label" data-i18n="hero.badge">Express delivery standard</span>
       </div>
     </div>
-    <div class="container stats-strip reveal">
+    <div class="container stats-strip reveal" data-rv="up">
       <div class="stats-grid" id="heroStats">
         <div class="stat-cell"><div class="num" data-count="19">0</div><div class="lbl" data-i18n="hero.stat1">Countries covered</div></div>
         <div class="stat-cell"><div class="num" data-text="24–48h">24–48h</div><div class="lbl" data-i18n="hero.stat2">Express delivery</div></div>
@@ -594,12 +921,13 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
         <div class="stat-cell"><div class="num" data-count="7">0</div><div class="lbl" data-i18n="hero.stat4">Years in operation</div></div>
       </div>
     </div>
+    <a class="scroll-cue" href="#services" aria-label="Scroll"><span></span></a>
   </section>
 
   <!-- SERVICES -->
   <section id="services">
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head center reveal" data-rv="up">
         <div class="eyebrow" data-i18n="services.eyebrow">What we do</div>
         <h2 data-i18n="services.title">End-to-end supply chain infrastructure, built in-house</h2>
         <p data-i18n="services.sub">Six capabilities. One accountable team, start to finish.</p>
@@ -618,16 +946,16 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   <!-- COVERAGE -->
   <section id="coverage">
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head center reveal" data-rv="up">
         <div class="eyebrow" data-i18n="coverage.eyebrow">Global reach</div>
         <h2 data-i18n="coverage.title">One operating standard. Nineteen countries.</h2>
         <p data-i18n="coverage.sub">From Western Europe to Latin America, from West Africa to Southeast Asia — the same warehousing, delivery and compliance standard everywhere we operate. Need a market we don't cover yet? We open it.</p>
       </div>
       <div class="cov-wrap">
         <div class="reveal">
-          <div class="globe-frame">
+          <div class="globe-frame" data-vfx>
             <div class="ring r1"></div><div class="ring r2"></div>
-            <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/26770/26770-360.mp4"></video>
+            <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/33453197/14234991_1920_1080_24fps.mp4" data-src-m="https://videos.pexels.com/video-files/33453197/14234989_1280_720_24fps.mp4"></video>
           </div>
           <div class="cov-chips">
             <span class="cov-chip glass" data-i18n="coverage.chip1">19 countries</span>
@@ -661,7 +989,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   <section id="case">
     <div class="container">
       <div class="case-wrap glass reveal">
-        <div class="section-head" style="margin-bottom:36px;">
+        <div class="section-head center" style="margin-bottom:38px;">
           <div class="eyebrow" data-i18n="case.eyebrow">Proven at scale</div>
           <h2 data-i18n="case.title">Seven years. One client. €250M in annual turnover.</h2>
           <p data-i18n="case.sub">Since 2019 we've run the entire supply chain — sourcing, warehousing, delivery, finance and technology — for a leading food supplements and cosmetics brand.</p>
@@ -681,8 +1009,8 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
               <li data-i18n="case.b4">Continuous financial and legal structuring as the business scaled</li>
             </ul>
           </div>
-          <div class="case-video">
-            <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/39909/39909-360.mp4"></video>
+          <div class="case-video" data-vfx>
+            <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/2711285/2711285-hd_1920_1080_24fps.mp4" data-src-m="https://videos.pexels.com/video-files/2711285/2711285-hd_1280_720_24fps.mp4"></video>
           </div>
         </div>
       </div>
@@ -690,9 +1018,9 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   </section>
 
   <!-- PROOF BAND -->
-  <section class="band">
-    <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/23011/23011-360.mp4"></video>
-    <div class="container reveal">
+  <section class="band" data-vfx>
+    <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/35200489/14912983_1920_1080_60fps.mp4" data-src-m="https://videos.pexels.com/video-files/35200489/14912982_1280_720_60fps.mp4"></video>
+    <div class="container reveal" data-rv="up">
       <h2 data-i18n="band.title">Your product on your customer's doorstep in 24⁠–⁠48 hours.</h2>
       <p data-i18n="band.sub">Nineteen countries — that's where we operate today, not where we stop. We open fulfilment centres in any country on earth and build a courier network from the ground up when no carrier meets the standard. We did exactly that across 18 states of Mexico.</p>
       <a href="#contact" class="btn btn-primary" data-i18n="band.cta">Book a Call</a>
@@ -702,14 +1030,14 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   <!-- PROCESS -->
   <section id="process">
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head center reveal" data-rv="up">
         <div class="eyebrow" data-i18n="process.eyebrow">How we work</div>
         <h2 data-i18n="process.title">From audit to autopilot</h2>
       </div>
-      <div class="proc-strip reveal">
-        <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/20770/20770-360.mp4"></video>
+      <div class="proc-strip reveal" data-vfx>
+        <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/10472351/10472351-hd_1920_1080_25fps.mp4" data-src-m="https://videos.pexels.com/video-files/10472351/10472351-hd_1280_720_25fps.mp4"></video>
       </div>
-      <div class="timeline stagger">
+      <div class="timeline stagger"><i class="tl-rail"><i class="tl-fill" id="tlFill"></i></i>
         <div class="tl-step"><div class="tl-num">01</div><h3 data-i18n="process.s1t">Discovery &amp; Audit</h3><p data-i18n="process.s1d">We map your product, margins and markets, and audit your current supply chain for cost and speed.</p></div>
         <div class="tl-step"><div class="tl-num">02</div><h3 data-i18n="process.s2t">Infrastructure Design</h3><p data-i18n="process.s2d">We design the legal entity, financial rails, warehousing footprint and delivery network for each market you enter.</p></div>
         <div class="tl-step"><div class="tl-num">03</div><h3 data-i18n="process.s3t">Launch &amp; Integration</h3><p data-i18n="process.s3d">We deploy the custom CRM and AI automation, integrate carriers and payment methods including COD, and go live.</p></div>
@@ -721,7 +1049,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   <!-- WHY US -->
   <section id="why">
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head center reveal" data-rv="up">
         <div class="eyebrow" data-i18n="why.eyebrow">Why Delivery Consult</div>
         <h2 data-i18n="why.title">We are operators, not consultants</h2>
       </div>
@@ -736,11 +1064,11 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 
   <!-- CONTACT -->
   <section id="contact">
-    <div class="bg-video">
-      <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/44690/44690-360.mp4"></video>
+    <div class="bg-video" data-vfx>
+      <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" data-src="https://videos.pexels.com/video-files/33637403/14294638_1920_1080_24fps.mp4" data-src-m="https://videos.pexels.com/video-files/33637403/14294635_1280_720_24fps.mp4"></video>
     </div>
     <div class="container">
-      <div class="section-head reveal">
+      <div class="section-head center reveal" data-rv="up">
         <div class="eyebrow" data-i18n="contact.eyebrow">Let's talk</div>
         <h2 data-i18n="contact.title">Tell us about your supply chain</h2>
         <p data-i18n="contact.sub">Whether you need one market, all nineteen, or one we haven't opened yet — we design the infrastructure around your product.</p>
@@ -1288,12 +1616,14 @@ document.querySelectorAll('.reveal, .stagger').forEach(el=> io.observe(el));
 function sweepReveal(){
   document.querySelectorAll('.reveal:not(.is-visible), .stagger:not(.is-visible)').forEach(el=>{
     const r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight * 1.15 && r.bottom > -240) el.classList.add('is-visible');
+    /* No lower bound: a block the visitor has already flicked past must be shown,
+       not left invisible because the observer missed it on the way down. */
+    if (r.top < window.innerHeight * 1.15) el.classList.add('is-visible');
   });
   document.querySelectorAll('[data-count]').forEach(el=>{
     if (el.dataset.counted) return;
     const r = el.getBoundingClientRect();
-    if (r.top < window.innerHeight && r.bottom > 0) animateCount(el);
+    if (r.top < window.innerHeight) animateCount(el);
   });
 }
 let sweepTick = false;
@@ -1337,22 +1667,63 @@ const counterIo = new IntersectionObserver((entries)=>{
 },{threshold:0.25});
 document.querySelectorAll('[data-count]').forEach(el=> counterIo.observe(el));
 
-/* ===================== LAZY VIDEO LOAD ===================== */
+/* ===================== LAZY VIDEO LOAD (v2) ===================== */
+/* Two encodes per clip: 1920x1080 for desktop, 1280x720 for phones (data-src-m).
+   The choice is made once, on the first load, so rotating the device never
+   re-downloads a second copy of the same footage. */
+const VIDEO_SMALL = window.matchMedia('(max-width: 900px)').matches
+  || Math.min(window.innerWidth, window.innerHeight) <= 820;
+function videoSrc(v){
+  return (VIDEO_SMALL && v.dataset.srcM) ? v.dataset.srcM : v.dataset.src;
+}
+/* Anything that proves a frame exists counts as loaded. Gating on `loadeddata`
+   alone left iOS Safari showing an empty box whenever that one event was missed. */
+const READY_EVENTS = ['loadedmetadata','loadeddata','canplay','canplaythrough','playing'];
+const pendingPlay = [];
+function wantPlay(v){
+  const p = v.play();
+  if(p && p.catch) p.catch(()=>{ if(pendingPlay.indexOf(v) < 0) pendingPlay.push(v); });
+}
+/* iOS Low Power Mode refuses programmatic autoplay outright. Retry once the
+   visitor touches the page — by then the gesture makes playback permissible. */
+['touchstart','pointerdown','click'].forEach(ev=>{
+  window.addEventListener(ev, ()=>{
+    while(pendingPlay.length){ const v = pendingPlay.pop(); v.play().catch(()=>{}); }
+  }, {once:true, passive:true});
+});
 const videoIo = new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
     const v = entry.target;
     if(entry.isIntersecting){
-      if(v.dataset.src && !v.src){ v.src = v.dataset.src; v.load(); }
-      v.play().catch(()=>{});
-    } else {
+      if(!v.src){
+        const src = videoSrc(v);
+        if(src){ v.src = src; v.load(); }
+      }
+      wantPlay(v);
+    } else if(!v.paused){
       v.pause();
     }
   });
-},{threshold:0.15});
+},{threshold:0.15, rootMargin:'220px 0px 220px 0px'});
 document.querySelectorAll('video[data-src]').forEach(v=>{
+  const markLoaded = ()=> v.classList.add('loaded');
+  READY_EVENTS.forEach(ev=> v.addEventListener(ev, markLoaded));
+  /* If the CDN is blocked (corporate proxy, ad-blocker, offline) the container's
+     own gradient stays visible instead of a hole, and we stop retrying. */
+  v.addEventListener('error', ()=>{
+    v.classList.remove('loaded');
+    videoIo.unobserve(v);
+    const host = v.closest('[data-vfx]');
+    if(host) host.classList.add('vfx-in');
+  });
   videoIo.observe(v);
-  v.addEventListener('loadeddata', ()=> v.classList.add('loaded'));
 });
+/* The hero video is above the fold: start it immediately rather than waiting
+   for an observer callback that fires a frame or two later. */
+(function(){
+  const hv = document.querySelector('.hero-bg video[data-src]');
+  if(hv && !hv.src){ const s = videoSrc(hv); if(s){ hv.src = s; hv.load(); wantPlay(hv); } }
+})();
 
 /* ===================== CONTACT FORM (Web3Forms, with mailto fallback) ===================== */
 document.getElementById('contactForm').addEventListener('submit', function(e){
@@ -1410,6 +1781,246 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
 /* ===================== INIT ===================== */
 renderCountries('en');
 detectInitialLang();
+
+/* ===================== V2 MOTION ENGINE ===================== */
+(function(){
+  const RM = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reduced = () => RM.matches;
+  const isSmall = () => window.innerWidth < 900;
+  const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
+
+  /* ---------- 1. WORD SPLITTER ---------- */
+  const WORD_SEL = 'h1, .section-head h2, .band h2';
+  function splitWords(root){
+    if(!root || root.querySelector('.w')) return;          /* already split, untouched by i18n */
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node=>{
+      const txt = node.nodeValue;
+      if(!txt || !txt.trim()) return;
+      const grad = node.parentElement && node.parentElement.closest('.grad-text');
+      const frag = document.createDocumentFragment();
+      /* split on whitespace only — U+2060 WORD JOINER is not whitespace, so
+         glued tokens like 24<WJ>–<WJ>48h stay a single word. */
+      txt.split(/(\s+)/).forEach(tok=>{
+        if(!tok) return;
+        if(/^\s+$/.test(tok)){ frag.appendChild(document.createTextNode(tok)); return; }
+        const s = document.createElement('span');
+        s.className = grad ? 'w gw' : 'w';
+        s.textContent = tok;
+        frag.appendChild(s);
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+    /* An ancestor with background-clip:text paints its gradient at the FINAL glyph
+       positions regardless of the child's opacity/transform — it would show the word
+       before the word arrives. The gradient now lives on the .gw spans instead. */
+    root.querySelectorAll('.grad-text').forEach(g=>{ g.style.background = 'none'; });
+    const ws = root.querySelectorAll('.w');
+    /* 0.105s per word. On the longest heading (11 words) the last word starts at
+       ~1.05s and finishes at ~2.3s — slow enough to watch, short enough that a fast
+       scroller never catches a half-built line. Any harness probing `.w.in` must
+       therefore wait longer than 2.3s before judging opacity. */
+    ws.forEach((w,i)=> w.style.setProperty('--d', (i*0.105).toFixed(3)+'s'));
+  }
+  function revealWords(root){
+    void root.offsetHeight;                                /* flush the hidden start state */
+    root.querySelectorAll('.w:not(.in)').forEach(w=> w.classList.add('in'));
+  }
+
+  let wordIo = null;
+  function bindWords(){
+    document.querySelectorAll(WORD_SEL).forEach(el=>{
+      splitWords(el);
+      if(reduced()){ revealWords(el); return; }
+      /* Already on screen (first paint, or a language switch that rebuilt the
+         heading under the visitor's eyes) — show it now, don't wait to scroll. */
+      const r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight){ revealWords(el); return; }
+      if(wordIo) wordIo.observe(el);
+    });
+  }
+  if(!reduced()){
+    wordIo = new IntersectionObserver((es)=>{
+      es.forEach(e=>{ if(e.isIntersecting){ revealWords(e.target); wordIo.unobserve(e.target); } });
+    },{threshold:0, rootMargin:'0px 0px -12% 0px'});
+  }
+
+  /* ---------- 2. COUNTRY TAGS ---------- */
+  let tagIo = null;
+  function revealTags(grid){
+    grid.querySelectorAll('.country-tag').forEach((t,i)=>{
+      t.style.transitionDelay = (i*0.035).toFixed(3)+'s';
+      t.classList.add('in');
+    });
+  }
+  function bindTags(){
+    document.querySelectorAll('.country-grid').forEach(g=>{
+      if(reduced()){ revealTags(g); return; }
+      const r = g.getBoundingClientRect();
+      if(r.top < window.innerHeight){ revealTags(g); return; }
+      if(tagIo) tagIo.observe(g);
+    });
+  }
+  if(!reduced()){
+    tagIo = new IntersectionObserver((es)=>{
+      es.forEach(e=>{ if(e.isIntersecting){ revealTags(e.target); tagIo.unobserve(e.target); } });
+    },{threshold:0.08});
+  }
+
+  /* ---------- 3. RE-RUN AFTER EVERY LANGUAGE SWITCH ---------- */
+  /* applyLang() replaces innerHTML, which destroys every .w span and every
+     .country-tag, so both decorations must be reapplied afterwards. */
+  const _applyLang = applyLang;
+  applyLang = function(lang){
+    _applyLang(lang);
+    bindWords();
+    bindTags();
+  };
+  const _renderCountries = renderCountries;
+  renderCountries = function(lang){
+    _renderCountries(lang);
+    bindTags();
+  };
+
+  /* ---------- 4. VIDEO REVEAL (clip-path wipe) ---------- */
+  const vfxIo = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('vfx-in'); vfxIo.unobserve(e.target); } });
+  },{threshold:0.12, rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('[data-vfx]').forEach(el=>{
+    if(el.classList.contains('hero-bg')) return;
+    if(reduced()){ el.classList.add('vfx-in'); return; }
+    vfxIo.observe(el);
+  });
+
+  /* ---------- 4b. TIMELINE NODES ----------
+     Lit by an observer rather than from `frame()`: the scroll handler only runs on a
+     scroll event, so arriving at the section by anchor link or by reloading at that
+     offset would leave the nodes dark until the visitor happened to scroll again.
+     Below 900px the rail is hidden, and this keeps the same choreography on phones.
+     Once lit they stay lit — this is a route being drawn, not a hover state. */
+  const nodeIo = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('lit'); nodeIo.unobserve(e.target); } });
+  },{threshold:0.45, rootMargin:'0px 0px -20% 0px'});
+  if(!reduced()) document.querySelectorAll('.tl-num').forEach(el=>nodeIo.observe(el));
+
+  /* ---------- 5. COUNTER POP ---------- */
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    if(!el.classList.contains('num')) return;
+    const mo = new MutationObserver(()=>{
+      if(el.__popped) return;
+      el.__popped = true;
+      el.classList.add('pop');
+      setTimeout(()=> el.classList.remove('pop'), 600);
+    });
+    mo.observe(el, {childList:true, characterData:true, subtree:true});
+  });
+
+  /* ---------- 6. POINTER GLOW ---------- */
+  if(!isSmall() && !reduced() && window.matchMedia('(hover:hover)').matches){
+    document.querySelectorAll('.svc-card, .why-card').forEach(card=>{
+      card.addEventListener('pointermove', (e)=>{
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100).toFixed(1)+'%');
+        card.style.setProperty('--my', ((e.clientY-r.top)/r.height*100).toFixed(1)+'%');
+      }, {passive:true});
+    });
+  }
+
+  /* ---------- 7. ONE rAF SCROLL LOOP ---------- */
+  const bar      = document.getElementById('scrollBar');
+  const heroEl   = document.querySelector('.hero');
+  const heroVid  = document.querySelector('.hero-bg video');
+  const heroIn   = document.getElementById('heroInner');
+  const tlFill   = document.getElementById('tlFill');
+  const timeline = document.querySelector('.timeline');
+  const vfxVids  = Array.from(document.querySelectorAll('[data-vfx]:not(.hero-bg) video'));
+  let ticking = false;
+
+  function frame(){
+    ticking = false;
+    const vh = window.innerHeight;
+    const small = isSmall();
+
+    if(bar){
+      const max = document.documentElement.scrollHeight - vh;
+      bar.style.width = (max > 0 ? clamp(window.scrollY/max,0,1)*100 : 0).toFixed(2)+'%';
+    }
+    if(reduced()) return;
+
+    if(heroEl){
+      const h = heroEl.offsetHeight || vh;
+      const p = clamp(window.scrollY / h, 0, 1);
+      if(heroVid) heroVid.style.transform =
+        'translate(-50%,-50%) translate3d(0,'+(p*7).toFixed(2)+'%,0) scale('+(1.14 + p*0.10).toFixed(4)+')';
+      if(heroIn){
+        heroIn.style.transform = 'translate3d(0,'+(p*(small?46:88)).toFixed(1)+'px,0)';
+        heroIn.style.opacity   = clamp(1 - p*1.25, 0, 1).toFixed(3);
+      }
+    }
+
+    if(!small){
+      for(let i=0;i<vfxVids.length;i++){
+        const v = vfxVids[i];
+        const r = v.getBoundingClientRect();
+        if(r.bottom < -120 || r.top > vh + 120) continue;
+        const c = (r.top + r.height/2 - vh/2) / vh;      /* -1 .. 1 */
+        v.style.transform = 'translate3d(0,'+(clamp(-c,-1,1)*22).toFixed(1)+'px,0) scale(1.14)';
+      }
+    }
+
+    if(tlFill && timeline){
+      const r = timeline.getBoundingClientRect();
+      const p = clamp((vh*0.78 - r.top) / (r.height*0.72 || 1), 0, 1);
+      tlFill.style.width = (p*100).toFixed(2)+'%';
+      /* the comet head is a child of a zero-width box before the scroll starts, so it
+         would otherwise sit as a stray glowing dot at the rail's origin */
+      tlFill.classList.toggle('go', p > 0.006);
+    }
+  }
+  function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(frame); } }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  window.addEventListener('orientationchange', onScroll, {passive:true});
+  window.addEventListener('load', onScroll);
+
+  /* ---------- 8. FALLBACK SWEEP ---------- */
+  /* Nothing on this page is allowed to stay invisible because an observer missed it. */
+  function sweepV2(){
+    document.querySelectorAll(WORD_SEL).forEach(el=>{
+      if(!el.querySelector('.w:not(.in)')) return;
+      const r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight*1.1) revealWords(el);
+    });
+    document.querySelectorAll('.country-grid').forEach(g=>{
+      if(!g.querySelector('.country-tag:not(.in)')) return;
+      const r = g.getBoundingClientRect();
+      if(r.top < window.innerHeight*1.1) revealTags(g);
+    });
+    document.querySelectorAll('[data-vfx]:not(.vfx-in)').forEach(el=>{
+      if(el.classList.contains('hero-bg')) return;
+      const r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight*1.1) el.classList.add('vfx-in');
+    });
+  }
+  let swTick = false;
+  function queueV2(){
+    if(swTick) return; swTick = true;
+    requestAnimationFrame(()=>{ swTick = false; sweepV2(); });
+  }
+  window.addEventListener('scroll', queueV2, {passive:true});
+  window.addEventListener('resize', queueV2, {passive:true});
+  window.addEventListener('load', ()=> setTimeout(sweepV2, 300));
+  setTimeout(sweepV2, 1400);
+
+  /* ---------- 9. BOOT ---------- */
+  bindWords();
+  bindTags();
+  onScroll();
+  window.addEventListener('load', ()=> setTimeout(()=>{ bindWords(); bindTags(); onScroll(); }, 120));
+})();
+
 </script>
 </body>
 </html>
