@@ -29,8 +29,10 @@
   --maxw: 1220px;
   --ease: cubic-bezier(.16,.84,.44,1);
 }
-*{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:rgba(139,92,246,0.18);}
+/* anchors must clear the fixed header, otherwise section titles land under it */
+html{scroll-behavior:smooth;scroll-padding-top:92px;}
+@media(max-width:900px){html{scroll-padding-top:74px;}}
 body{
   margin:0;
   background:var(--bg);
@@ -176,8 +178,9 @@ nav.links > a:hover{color:var(--text);background:rgba(255,255,255,0.06);}
 
 /* ===== SECTION SHELL ===== */
 section{padding:120px 0;}
+h1,h2,h3,h4,p,li,.eyebrow,.lbl{overflow-wrap:break-word;}
 .eyebrow{
-  display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
+  display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;max-width:100%;
   font-size:12.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
   color:var(--text-dim);margin-bottom:22px;
 }
@@ -200,7 +203,8 @@ section{padding:120px 0;}
 .stagger.is-visible > *:nth-child(6){transition-delay:.43s;}
 
 /* ===== HERO ===== */
-.hero{padding:190px 0 100px;min-height:100vh;display:flex;align-items:center;}
+.hero{padding:190px 0 100px;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;}
+.hero>.container{width:100%;}
 .hero-inner{display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;}
 .hero h1{font-size:clamp(38px,5.4vw,68px);}
 .hero .lead{font-size:18px;color:var(--text-dim);margin-top:22px;max-width:520px;}
@@ -220,7 +224,8 @@ section{padding:120px 0;}
 
 .stats-strip{margin-top:80px;}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-.stat-cell{background:rgba(8,9,16,0.7);padding:26px 22px;text-align:center;}
+.stat-cell{background:rgba(8,9,16,0.7);padding:26px 22px;text-align:center;min-width:0;}
+.stat-cell .lbl,.stat-cell .num{overflow-wrap:anywhere;}
 .stat-cell .num{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,3vw,34px);font-weight:700;}
 .stat-cell .lbl{margin-top:6px;font-size:12.5px;color:var(--text-dimmer);letter-spacing:0.02em;}
 
@@ -290,14 +295,15 @@ section{padding:120px 0;}
 
 /* ===== WHY US ===== */
 .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
-.why-card{padding:28px 22px;text-align:left;}
+.why-card{padding:28px 22px;text-align:left;min-width:0;}
+.why-card h3,.why-card p{overflow-wrap:anywhere;}
 .why-card .num-lg{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:700;opacity:0.9;}
 .why-card h3{font-size:16px;margin:14px 0 8px;}
 .why-card p{font-size:13.8px;color:var(--text-dim);}
 
 /* ===== CONTACT ===== */
 .contact-wrap{display:grid;grid-template-columns:0.9fr 1.1fr;gap:52px;}
-.contact-info-card{padding:34px;}
+.contact-info-card{padding:34px;background:rgba(12,14,24,0.4);border-color:rgba(255,255,255,0.13);}
 .info-row{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
 .info-row:last-child{border-bottom:none;}
 .info-row .ic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;}
@@ -306,12 +312,18 @@ section{padding:120px 0;}
 .entity-block{margin-top:22px;padding-top:22px;border-top:1px solid var(--border);font-size:13.3px;color:var(--text-dim);line-height:1.7;}
 .entity-block strong{color:var(--text);display:block;font-size:14.5px;margin-bottom:4px;}
 
-.form-card{padding:34px;}
+.form-card{padding:34px;background:rgba(12,14,24,0.44);border-color:rgba(255,255,255,0.13);}
 .field{margin-bottom:18px;}
 .field label{display:block;font-size:12.5px;color:var(--text-dimmer);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;}
 .field input, .field textarea{
   width:100%;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,0.04);
   border:1px solid var(--border);color:var(--text);font-size:14.5px;font-family:inherit;transition:border-color .25s, background .25s;
+}
+/* iOS Safari zooms the whole page in when a focused field is under 16px and
+   never zooms back out — on the contact form that is the worst place for it. */
+@media(max-width:900px){
+  .field input, .field textarea{font-size:16px;padding:15px 16px;}
+  .field label{font-size:13px;}
 }
 .field input:focus, .field textarea:focus{outline:none;border-color:rgba(139,92,246,0.6);background:rgba(255,255,255,0.06);}
 .field textarea{min-height:110px;resize:vertical;}
@@ -338,7 +350,63 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:26px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px;}
 .footer-bottom p{font-size:12.5px;color:var(--text-dimmer);}
 
+/* ===== FULL-BLEED VIDEO BAND ===== */
+.band{position:relative;overflow:hidden;padding:0;background:linear-gradient(120deg,#140f30,#0a2030 55%,#2a0f26);display:flex;align-items:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.band video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:linear-gradient(140deg,#1a1440,#0b2438 55%,#3a1330);opacity:0;transition:opacity 1.2s var(--ease);}
+.band video.loaded{opacity:.92;}
+.band::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,11,0.9) 0%,rgba(5,6,11,0.6) 44%,rgba(5,6,11,0.08) 100%),linear-gradient(180deg,rgba(5,6,11,0.2),rgba(5,6,11,0.42));}
+.band .container{position:relative;z-index:2;padding-top:96px;padding-bottom:96px;}
+.band h2{font-size:clamp(25px,3.5vw,42px);max-width:780px;line-height:1.16;text-shadow:0 2px 24px rgba(0,0,0,0.6);}
+.band p{margin-top:18px;font-size:17px;color:var(--text);opacity:.88;max-width:620px;text-shadow:0 1px 16px rgba(0,0,0,0.55);}
+.band .btn{margin-top:32px;}
+
+/* ===== PROCESS VIDEO STRIP ===== */
+.proc-strip{position:relative;height:180px;background:linear-gradient(120deg,#221a45,#102c3e 55%,#3a1330);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:48px;}
+.proc-strip video{width:100%;height:100%;object-fit:cover;background:linear-gradient(120deg,#221a45,#102c3e);opacity:0;transition:opacity 1.2s var(--ease);}
+.proc-strip video.loaded{opacity:.8;}
+.proc-strip::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,6,11,0.3),rgba(5,6,11,0.85)),linear-gradient(90deg,rgba(139,92,246,0.22),rgba(34,211,238,0.1));}
+
+/* ===== CONTACT BACKGROUND VIDEO ===== */
+#contact{position:relative;overflow:hidden;}
+#contact .bg-video{position:absolute;inset:0;z-index:0;}
+#contact .bg-video video{width:100%;height:100%;object-fit:cover;background:#05060b;opacity:0;transition:opacity 1.6s var(--ease);}
+#contact .bg-video video.loaded{opacity:.8;}
+#contact .bg-video::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 10%,rgba(5,6,11,0.28),rgba(5,6,11,0.62) 70%),linear-gradient(180deg,rgba(5,6,11,0.34),rgba(5,6,11,0.55));}
+#contact>.container{position:relative;z-index:1;}
+#contact .section-head h2,#contact .section-head p{text-shadow:0 2px 22px rgba(0,0,0,0.65);}
+#contact .field input,#contact .field textarea{background:rgba(255,255,255,0.05);}
+.form-note{margin-top:16px;font-size:13px;line-height:1.55;color:var(--text-dimmer);}
+
 /* ===== responsive ===== */
+@media(max-width:900px){
+  /* The aurora blobs are 520–640px wide, so on a phone they cover the whole
+     column and every paragraph sits on saturated colour. Damp them down and
+     lift the dimmest text, or small grey copy loses contrast. */
+  /* Measured: 13px labels sat at 3.2:1 where the cyan blob crossed them. Damp
+     the blobs, add one flat scrim, lift the dimmest text — enough to clear AA
+     (worst case ~5:1) without draining the colour out of the page. */
+  .aurora span{opacity:0.3;}
+  .aurora span:nth-child(4){opacity:0.1;}
+  :root{--text-dim:rgba(244,245,249,0.8);--text-dimmer:rgba(244,245,249,0.72);}
+  footer{background:linear-gradient(to bottom, rgba(5,6,11,0.35), rgba(5,6,11,0.82));}
+  .stat-cell{background:rgba(8,9,16,0.88);}
+  /* on desktop this cell is a white 3% lift; on a phone it sits on the blob and
+     lifting it is exactly wrong — tint dark instead. */
+  .case-stat{background:rgba(8,9,16,0.55);}
+  /* scrim on main, not per-section: a per-section scrim leaves a hard step at
+     every section boundary. main covers them all with no seam. */
+  main{background:rgba(5,6,11,0.22);}
+  nav.links{display:none;}
+  .burger{display:flex;flex:none;}
+  .nav-right .btn-primary{display:none;}
+  /* the language switch stays in the header: on an 8-language site it must be
+     discoverable without opening the menu. Compact form below. */
+  .nav-right .lang-switch{display:block;}
+  .nav-right .lang-btn{padding:8px 10px;font-size:13px;gap:5px;min-height:42px;}
+  .burger{min-height:42px;min-width:42px;}
+  .nav-right .lang-menu{right:-42px;}
+  .nav-inner{padding:10px 10px 10px 18px;gap:10px;}
+}
 @media(max-width:980px){
   .hero-inner{grid-template-columns:1fr;}
   .hero-visual{order:-1;aspect-ratio:16/10;}
@@ -354,10 +422,6 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   .footer-top{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:720px){
-  nav.links{display:none;}
-  .burger{display:flex;flex:none;}
-  .nav-right .btn-primary{display:none;}
-  .nav-right .lang-switch{display:none;}
   .brand small{display:none;}
   .nav-inner{padding:8px 8px 8px 16px;gap:8px;}
   section{padding:80px 0;}
@@ -369,12 +433,50 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
   .footer-top{grid-template-columns:1fr;gap:30px;}
   .case-wrap{padding:26px;}
 }
+@media(max-width:720px){
+  .band .container{padding-top:64px;padding-bottom:64px;}
+  .proc-strip{height:130px;margin-bottom:34px;}
+}
+@media(max-width:480px){
+  h1,h2,h3,p{hyphens:auto;}
+  .hero h1{font-size:clamp(30px,8.4vw,44px);}
+  .section-head h2{font-size:clamp(24px,7vw,36px);}
+}
+@media(max-width:560px){
+  .timeline{grid-template-columns:1fr;row-gap:26px;}
+  .why-grid{grid-template-columns:1fr;}
+  .tl-step{padding:0;}
+}
+/* Touch sizing and legibility floors. Small uppercase labels read fine on a
+   desktop monitor and turn to grit on a phone; links need a real tap area. */
+@media(max-width:900px){
+  .hero-visual .badge .b-label,.info-row .lbl,.eyebrow,.stat-cell .lbl,
+  .case-stat .lbl,.region-block h4,.footer-col h4,.footer-bottom p{font-size:13px;}
+  .footer-col a{padding:11px 0;font-size:15px;}
+  /* long German/Polish compounds break mid-word in narrow cells; hyphenate
+     instead of splitting ("Expresszustel-lung", not "Expresszustellu ng") */
+  .stat-cell .lbl,.case-stat .lbl,.tl-step h3,.why-card h3,.svc-card h3{hyphens:auto;-webkit-hyphens:auto;}
+  .info-row{padding:18px 0;}
+  .info-row .val{display:inline-block;padding:5px 0;}
+  .info-row .val a,a.contact-link{display:inline-block;padding:9px 0;}
+  .brand{padding:9px 0;}
+  .drawer-panel a{padding:15px 6px;}
+}
 @media(max-width:400px){
   .brand{font-size:15px;}
+  .container{padding-left:16px;padding-right:16px;}
+  .case-wrap{padding:20px;}
+  .case-stat{padding:16px;}
+  .why-card{padding:24px 18px;}
+  .form-card,.contact-info-card{padding:24px;}
 }
+/* grid children must be allowed to shrink, or long words widen the whole page */
+.tl-step,.case-stat,.stat-cell,.why-card,.svc-card,.footer-col,.info-row,.form-card,.contact-info-card{min-width:0;}
+.case-stat .lbl,.tl-step h3,.tl-step p,.info-row .val{overflow-wrap:anywhere;}
+.why-card .num-lg{font-size:clamp(26px,7.4vw,34px);}
 .drawer-lang{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
 .drawer-lang button{
-  flex:1 1 27%;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  flex:1 1 27%;min-height:46px;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);
   color:var(--text-dim);font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;
 }
 .drawer-lang button.active{color:var(--text);background:rgba(139,92,246,0.18);border-color:var(--border-strong);}
@@ -387,11 +489,14 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
 .mobile-drawer.open{opacity:1;visibility:visible;}
 .drawer-panel{
   position:absolute;top:14px;right:14px;left:14px;padding:26px;
+  max-height:calc(100vh - 28px);max-height:calc(100dvh - 28px);overflow-y:auto;-webkit-overflow-scrolling:touch;
   transform:translateY(-14px);transition:transform .35s var(--ease);
 }
 .mobile-drawer.open .drawer-panel{transform:translateY(0);}
 .drawer-panel a{display:block;padding:13px 6px;font-size:17px;border-bottom:1px solid var(--border);}
-.drawer-close{position:absolute;top:22px;right:22px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+/* the header CTA is hidden on phones, so the drawer has to carry it */
+.drawer-panel a.drawer-cta{display:block;margin-top:20px;padding:15px 18px;text-align:center;border-bottom:none;font-size:16px;}
+.drawer-close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
 </style>
 </head>
 <body>
@@ -444,6 +549,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
     <a href="#process" data-i18n="nav.process">Process</a>
     <a href="#why" data-i18n="nav.why">Why Us</a>
     <a href="#contact" data-i18n="nav.contact">Contact</a>
+    <a href="#contact" class="btn btn-primary drawer-cta" data-i18n="nav.cta">Book a Call</a>
     <div class="drawer-lang" id="drawerLang">
       <button data-lang="en" class="active">🇬🇧 EN</button>
       <button data-lang="es">🇪🇸 ES</button>
@@ -465,9 +571,9 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
       <div>
         <div class="eyebrow reveal" data-i18n="hero.eyebrow">Global supply chain partner since 2019</div>
         <h1 class="reveal" data-i18n-html="hero.title">We build supply chains that move at the <span class="grad-text">speed of demand.</span></h1>
-        <p class="lead reveal" data-i18n="hero.sub">Procurement, warehousing and 24–48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.</p>
+        <p class="lead reveal" data-i18n="hero.sub">Procurement, warehousing and 24⁠–⁠48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.</p>
         <div class="hero-ctas reveal">
-          <a href="#contact" class="btn btn-primary" data-i18n="hero.cta1">Book a Consultation</a>
+          <a href="#contact" class="btn btn-primary" data-i18n="hero.cta1">Book a Call</a>
           <a href="#coverage" class="btn btn-ghost" data-i18n="hero.cta2">See Our Coverage</a>
         </div>
       </div>
@@ -484,7 +590,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
       <div class="stats-grid" id="heroStats">
         <div class="stat-cell"><div class="num" data-count="19">0</div><div class="lbl" data-i18n="hero.stat1">Countries covered</div></div>
         <div class="stat-cell"><div class="num" data-text="24–48h">24–48h</div><div class="lbl" data-i18n="hero.stat2">Express delivery</div></div>
-        <div class="stat-cell"><div class="num" data-prefix="€" data-count="250" data-suffix="M">0</div><div class="lbl" data-i18n="hero.stat3">Client revenue managed</div></div>
+        <div class="stat-cell"><div class="num" data-prefix="€" data-count="250" data-suffix="M">0</div><div class="lbl" data-i18n="hero.stat3">Annual turnover</div></div>
         <div class="stat-cell"><div class="num" data-count="7">0</div><div class="lbl" data-i18n="hero.stat4">Years in operation</div></div>
       </div>
     </div>
@@ -499,11 +605,11 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
         <p data-i18n="services.sub">Six capabilities. One accountable team, start to finish.</p>
       </div>
       <div class="svc-grid stagger">
-        <div class="svc-card glass"><span class="idx">01</span><div class="icon">📦</div><h3 data-i18n="services.c1t">Procurement &amp; Sourcing</h3><p data-i18n="services.c1d">We source, vet and negotiate with manufacturers on your behalf — building supply lines that hold up at scale, not just on paper.</p></div>
-        <div class="svc-card glass"><span class="idx">02</span><div class="icon">🏭</div><h3 data-i18n="services.c2t">Warehousing &amp; Fulfillment</h3><p data-i18n="services.c2d">We stand up fulfillment centres and warehouse operations in any country on earth — pick, pack and dispatch run to your exact specification.</p></div>
-        <div class="svc-card glass"><span class="idx">03</span><div class="icon">🚚</div><h3 data-i18n="services.c3t">Express Delivery Network</h3><p data-i18n="services.c3d">Seven years of carrier relationships let us negotiate the sharpest express rates on the market, with guaranteed 24–48h delivery across 19 countries.</p></div>
-        <div class="svc-card glass"><span class="idx">04</span><div class="icon">⚖️</div><h3 data-i18n="services.c4t">Financial &amp; Legal Infrastructure</h3><p data-i18n="services.c4d">Company incorporation, licensing and full Cash on Delivery operations — with cross-border settlement in any currency, including modern digital assets, landed anywhere in the world.</p></div>
-        <div class="svc-card glass"><span class="idx">05</span><div class="icon">🤖</div><h3 data-i18n="services.c5t">Custom CRM &amp; AI Automation</h3><p data-i18n="services.c5d">Our in-house engineering team builds bespoke CRM systems from scratch and automates operations end-to-end with AI.</p></div>
+        <div class="svc-card glass"><span class="idx">01</span><div class="icon">📦</div><h3 data-i18n="services.c1t">Procurement &amp; Sourcing</h3><p data-i18n="services.c1d">We source and vet manufacturers, then negotiate on your behalf — building supply lines that hold up at scale, not just on paper.</p></div>
+        <div class="svc-card glass"><span class="idx">02</span><div class="icon">🏭</div><h3 data-i18n="services.c2t">Warehousing &amp; Fulfilment</h3><p data-i18n="services.c2d">We set up warehousing and fulfilment centres in any country on earth — not just the 19 we already cover. Pick, pack and dispatch run to your exact specification.</p></div>
+        <div class="svc-card glass"><span class="idx">03</span><div class="icon">🚚</div><h3 data-i18n="services.c3t">Express Delivery Network</h3><p data-i18n="services.c3d">Seven years of carrier relationships let us negotiate the sharpest express rates on the market. Where no carrier meets the standard, we build our own courier service from scratch — as we did across 18 states of Mexico. Either way, 24⁠–⁠48h delivery holds.</p></div>
+        <div class="svc-card glass"><span class="idx">04</span><div class="icon">⚖️</div><h3 data-i18n="services.c4t">Financial &amp; Legal Infrastructure</h3><p data-i18n="services.c4d">Company incorporation, licensing and full cash-on-delivery operations — with cross-border settlement in any currency, including digital assets, in every market we serve.</p></div>
+        <div class="svc-card glass"><span class="idx">05</span><div class="icon">🤖</div><h3 data-i18n="services.c5t">Custom CRM &amp; AI Automation</h3><p data-i18n="services.c5d">Our in-house engineering team builds custom CRM systems from scratch and automates operations end-to-end with AI.</p></div>
         <div class="svc-card glass"><span class="idx">06</span><div class="icon">🧩</div><h3 data-i18n="services.c6t">Tailored Operating Models</h3><p data-i18n="services.c6d">No templates. Every client gets an operating model engineered around their product, their markets and their margins.</p></div>
       </div>
     </div>
@@ -515,7 +621,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
       <div class="section-head reveal">
         <div class="eyebrow" data-i18n="coverage.eyebrow">Global reach</div>
         <h2 data-i18n="coverage.title">One operating standard. Nineteen countries.</h2>
-        <p data-i18n="coverage.sub">From Western Europe to Latin America, West Africa to Southeast Asia — the same warehousing, delivery and compliance standard, everywhere we operate.</p>
+        <p data-i18n="coverage.sub">From Western Europe to Latin America, from West Africa to Southeast Asia — the same warehousing, delivery and compliance standard everywhere we operate. Need a market we don't cover yet? We open it.</p>
       </div>
       <div class="cov-wrap">
         <div class="reveal">
@@ -526,7 +632,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
           <div class="cov-chips">
             <span class="cov-chip glass" data-i18n="coverage.chip1">19 countries</span>
             <span class="cov-chip glass" data-i18n="coverage.chip2">4 continents</span>
-            <span class="cov-chip glass" data-i18n="coverage.chip3">24–48h delivery standard</span>
+            <span class="cov-chip glass" data-i18n="coverage.chip3">24⁠–⁠48h delivery</span>
           </div>
         </div>
         <div class="stagger" id="countryBlocks">
@@ -557,21 +663,21 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
       <div class="case-wrap glass reveal">
         <div class="section-head" style="margin-bottom:36px;">
           <div class="eyebrow" data-i18n="case.eyebrow">Proven at scale</div>
-          <h2 data-i18n="case.title">Seven years. One partner. €250M in managed revenue.</h2>
+          <h2 data-i18n="case.title">Seven years. One client. €250M in annual turnover.</h2>
           <p data-i18n="case.sub">Since 2019 we've run the entire supply chain — sourcing, warehousing, delivery, finance and technology — for a leading food supplements and cosmetics brand.</p>
         </div>
         <div class="case-grid">
           <div>
             <div class="case-stats">
-              <div class="case-stat"><div class="num" data-prefix="€" data-count="250" data-suffix="M">0</div><div class="lbl" data-i18n="case.stat1">Annual revenue managed</div></div>
-              <div class="case-stat"><div class="num" data-prefix="€" data-count="1.5" data-suffix="M">0</div><div class="lbl" data-i18n="case.stat2">Net profit generated / month</div></div>
-              <div class="case-stat"><div class="num" data-count="7">0</div><div class="lbl" data-i18n="case.stat3">Years, one partnership</div></div>
+              <div class="case-stat"><div class="num" data-prefix="€" data-count="250" data-suffix="M">0</div><div class="lbl" data-i18n="case.stat1">Annual turnover</div></div>
+              <div class="case-stat"><div class="num" data-prefix="€" data-count="1.5" data-suffix="M">0</div><div class="lbl" data-i18n="case.stat2">Monthly net profit</div></div>
+              <div class="case-stat"><div class="num" data-count="7">0</div><div class="lbl" data-i18n="case.stat3">Years with one client</div></div>
               <div class="case-stat"><div class="num" data-count="19">0</div><div class="lbl" data-i18n="case.stat4">Markets served</div></div>
             </div>
             <ul class="case-list">
-              <li data-i18n="case.b1">Full Cash on Delivery infrastructure across every market</li>
-              <li data-i18n="case.b2">Custom CRM + AI automation cutting operational overhead</li>
-              <li data-i18n="case.b3">Dedicated warehouse network with 24–48h delivery</li>
+              <li data-i18n="case.b1">Full cash-on-delivery infrastructure in every market</li>
+              <li data-i18n="case.b2">Custom CRM and AI automation cutting operational overhead</li>
+              <li data-i18n="case.b3">Dedicated warehouse network with 24⁠–⁠48h delivery</li>
               <li data-i18n="case.b4">Continuous financial and legal structuring as the business scaled</li>
             </ul>
           </div>
@@ -583,6 +689,16 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
     </div>
   </section>
 
+  <!-- PROOF BAND -->
+  <section class="band">
+    <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/23011/23011-360.mp4"></video>
+    <div class="container reveal">
+      <h2 data-i18n="band.title">Your product on your customer's doorstep in 24⁠–⁠48 hours.</h2>
+      <p data-i18n="band.sub">Nineteen countries — that's where we operate today, not where we stop. We open fulfilment centres in any country on earth and build a courier network from the ground up when no carrier meets the standard. We did exactly that across 18 states of Mexico.</p>
+      <a href="#contact" class="btn btn-primary" data-i18n="band.cta">Book a Call</a>
+    </div>
+  </section>
+
   <!-- PROCESS -->
   <section id="process">
     <div class="container">
@@ -590,10 +706,13 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
         <div class="eyebrow" data-i18n="process.eyebrow">How we work</div>
         <h2 data-i18n="process.title">From audit to autopilot</h2>
       </div>
+      <div class="proc-strip reveal">
+        <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/20770/20770-360.mp4"></video>
+      </div>
       <div class="timeline stagger">
         <div class="tl-step"><div class="tl-num">01</div><h3 data-i18n="process.s1t">Discovery &amp; Audit</h3><p data-i18n="process.s1d">We map your product, margins and markets, and audit your current supply chain for cost and speed.</p></div>
         <div class="tl-step"><div class="tl-num">02</div><h3 data-i18n="process.s2t">Infrastructure Design</h3><p data-i18n="process.s2d">We design the legal entity, financial rails, warehousing footprint and delivery network for each market you enter.</p></div>
-        <div class="tl-step"><div class="tl-num">03</div><h3 data-i18n="process.s3t">Launch &amp; Integration</h3><p data-i18n="process.s3d">We deploy custom CRM and AI automation, integrate carriers and payment methods including COD, and go live.</p></div>
+        <div class="tl-step"><div class="tl-num">03</div><h3 data-i18n="process.s3t">Launch &amp; Integration</h3><p data-i18n="process.s3d">We deploy the custom CRM and AI automation, integrate carriers and payment methods including COD, and go live.</p></div>
         <div class="tl-step"><div class="tl-num">04</div><h3 data-i18n="process.s4t">Scale &amp; Optimise</h3><p data-i18n="process.s4d">We continuously renegotiate rates, expand coverage and tune automation as your volumes grow.</p></div>
       </div>
     </div>
@@ -604,24 +723,27 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
     <div class="container">
       <div class="section-head reveal">
         <div class="eyebrow" data-i18n="why.eyebrow">Why Delivery Consult</div>
-        <h2 data-i18n="why.title">Built by operators, not consultants</h2>
+        <h2 data-i18n="why.title">We are operators, not consultants</h2>
       </div>
       <div class="why-grid stagger">
-        <div class="why-card glass"><div class="num-lg">7</div><h3 data-i18n="why.c1t">Years Hands-On</h3><p data-i18n="why.c1d">We've run this exact playbook ourselves — not advised from the sidelines.</p></div>
+        <div class="why-card glass"><div class="num-lg">7</div><h3 data-i18n="why.c1t">Years Hands-On</h3><p data-i18n="why.c1d">We've run this playbook ourselves — not advised on it from the sidelines.</p></div>
         <div class="why-card glass"><div class="num-lg">IT</div><h3 data-i18n="why.c2t">In-House Tech Team</h3><p data-i18n="why.c2d">Custom CRM and AI automation built and maintained internally, not outsourced.</p></div>
         <div class="why-card glass"><div class="num-lg">360°</div><h3 data-i18n="why.c3t">Full-Stack Supply Chain</h3><p data-i18n="why.c3d">Procurement, warehousing, delivery, finance and legal — one accountable partner end-to-end.</p></div>
-        <div class="why-card glass"><div class="num-lg">€250M</div><h3 data-i18n="why.c4t">Proven at Real Scale</h3><p data-i18n="why.c4d">€250M in annual revenue managed for a single client over seven consecutive years.</p></div>
+        <div class="why-card glass"><div class="num-lg">€250M</div><h3 data-i18n="why.c4t">Proven at Real Scale</h3><p data-i18n="why.c4d">€250M in annual turnover — seven consecutive years with the same client.</p></div>
       </div>
     </div>
   </section>
 
   <!-- CONTACT -->
   <section id="contact">
+    <div class="bg-video">
+      <video autoplay muted loop playsinline preload="none" data-src="https://assets.mixkit.co/videos/44690/44690-360.mp4"></video>
+    </div>
     <div class="container">
       <div class="section-head reveal">
         <div class="eyebrow" data-i18n="contact.eyebrow">Let's talk</div>
         <h2 data-i18n="contact.title">Tell us about your supply chain</h2>
-        <p data-i18n="contact.sub">Whether you need a single market or all nineteen, we'll design the infrastructure around your product.</p>
+        <p data-i18n="contact.sub">Whether you need one market, all nineteen, or one we haven't opened yet — we design the infrastructure around your product.</p>
       </div>
       <div class="contact-wrap">
         <div class="contact-info-card glass reveal">
@@ -634,7 +756,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
             <div><div class="lbl" data-i18n="contact.phoneLbl">Phone</div><div class="val"><a href="tel:+447822015056">+44 7822 015056</a></div></div>
           </div>
           <div class="entity-block">
-            <strong data-i18n="contact.entityLbl">Registered Entity</strong>
+            <strong data-i18n="contact.entityLbl">Registered entity</strong>
             VITAWAVE LTD<br>
             International House, 101 King's Cross Road<br>
             London, United Kingdom, WC1X 9LP<br>
@@ -654,6 +776,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
           <div class="field"><label data-i18n="contact.email">Email</label><input type="email" name="email" required></div>
           <div class="field"><label data-i18n="contact.message">Message</label><textarea name="message" data-i18n-placeholder="contact.placeholder" placeholder="Tell us about your product, markets and volumes..." required></textarea></div>
           <button type="submit" class="btn btn-primary" style="width:100%;" data-i18n="contact.submit">Send Message</button>
+          <p class="form-note" data-i18n="contact.note">No pitch deck. One 30-minute call, and you leave with a costed plan for what your supply chain should look like.</p>
           <div class="form-success" id="formSuccess" data-i18n="contact.success">Thanks — we'll be in touch within one business day.</div>
           <div class="form-error" id="formError" data-i18n="contact.error">Something went wrong — please email us directly at business@delivery-consult.com.</div>
         </form>
@@ -668,7 +791,7 @@ footer{padding:70px 0 34px;border-top:1px solid var(--border);}
     <div class="footer-top">
       <div>
         <div class="brand"><span class="dot"></span><span>Delivery Consult</span></div>
-        <p class="footer-tagline" data-i18n="footer.tagline">Global supply chain infrastructure — procurement, warehousing and 24–48h delivery in 19 countries.</p>
+        <p class="footer-tagline" data-i18n="footer.tagline">Global supply chain infrastructure — procurement, warehousing and 24⁠–⁠48h delivery in 19 countries.</p>
       </div>
       <div class="footer-col">
         <h4 data-i18n="footer.navTitle">Navigate</h4>
@@ -726,346 +849,314 @@ const COUNTRIES = {
 const T = {
 en:{
   "nav.services":"Services","nav.coverage":"Coverage","nav.case":"Case Study","nav.process":"Process","nav.why":"Why Us","nav.contact":"Contact","nav.cta":"Book a Call",
-  "mega.s1t":"Procurement & Sourcing","mega.s1d":"Global supplier network, negotiated on your behalf",
-  "mega.s2t":"Warehousing & Fulfillment","mega.s2d":"Fulfillment centres in any country, run to spec",
-  "mega.s3t":"Express Delivery","mega.s3d":"24–48h delivery across 19 countries",
-  "mega.s4t":"Financial & Legal","mega.s4d":"Incorporation, COD, cross-border settlement",
-  "mega.s5t":"Custom CRM & AI","mega.s5d":"In-house engineering, built around you",
-  "mega.s6t":"Tailored Models","mega.s6d":"An operating model, not a template",
   "hero.eyebrow":"Global supply chain partner since 2019",
   "hero.title":"We build supply chains that move at the <span class=\"grad-text\">speed of demand.</span>",
-  "hero.sub":"Procurement, warehousing and 24–48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.",
-  "hero.cta1":"Book a Consultation","hero.cta2":"See Our Coverage","hero.badge":"Express delivery standard",
-  "hero.stat1":"Countries covered","hero.stat2":"Express delivery","hero.stat3":"Client revenue managed","hero.stat4":"Years in operation",
+  "hero.sub":"Procurement, warehousing and 24⁠–⁠48h express delivery across 19 countries — backed by financial, legal and AI infrastructure built to scale.",
+  "hero.cta1":"Book a Call","hero.cta2":"See Our Coverage","hero.badge":"Express delivery standard",
+  "hero.stat1":"Countries covered","hero.stat2":"Express delivery","hero.stat3":"Annual turnover","hero.stat4":"Years in operation",
   "services.eyebrow":"What we do","services.title":"End-to-end supply chain infrastructure, built in-house","services.sub":"Six capabilities. One accountable team, start to finish.",
-  "services.c1t":"Procurement & Sourcing","services.c1d":"We source, vet and negotiate with manufacturers on your behalf — building supply lines that hold up at scale, not just on paper.",
-  "services.c2t":"Warehousing & Fulfillment","services.c2d":"We stand up fulfillment centres and warehouse operations in any country on earth — pick, pack and dispatch run to your exact specification.",
-  "services.c3t":"Express Delivery Network","services.c3d":"Seven years of carrier relationships let us negotiate the sharpest express rates on the market, with guaranteed 24–48h delivery across 19 countries.",
-  "services.c4t":"Financial & Legal Infrastructure","services.c4d":"Company incorporation, licensing and full Cash on Delivery operations — with cross-border settlement in any currency, including modern digital assets, landed anywhere in the world.",
-  "services.c5t":"Custom CRM & AI Automation","services.c5d":"Our in-house engineering team builds bespoke CRM systems from scratch and automates operations end-to-end with AI.",
+  "services.c1t":"Procurement & Sourcing","services.c1d":"We source and vet manufacturers, then negotiate on your behalf — building supply lines that hold up at scale, not just on paper.",
+  "services.c2t":"Warehousing & Fulfilment","services.c2d":"We set up warehousing and fulfilment centres in any country on earth — not just the 19 we already cover. Pick, pack and dispatch run to your exact specification.",
+  "services.c3t":"Express Delivery Network","services.c3d":"Seven years of carrier relationships let us negotiate the sharpest express rates on the market. Where no carrier meets the standard, we build our own courier service from scratch — as we did across 18 states of Mexico. Either way, 24⁠–⁠48h delivery holds.",
+  "services.c4t":"Financial & Legal Infrastructure","services.c4d":"Company incorporation, licensing and full cash-on-delivery operations — with cross-border settlement in any currency, including digital assets, in every market we serve.",
+  "services.c5t":"Custom CRM & AI Automation","services.c5d":"Our in-house engineering team builds custom CRM systems from scratch and automates operations end-to-end with AI.",
   "services.c6t":"Tailored Operating Models","services.c6d":"No templates. Every client gets an operating model engineered around their product, their markets and their margins.",
-  "coverage.eyebrow":"Global reach","coverage.title":"One operating standard. Nineteen countries.","coverage.sub":"From Western Europe to Latin America, West Africa to Southeast Asia — the same warehousing, delivery and compliance standard, everywhere we operate.",
-  "coverage.chip1":"19 countries","coverage.chip2":"4 continents","coverage.chip3":"24–48h delivery standard",
+  "coverage.eyebrow":"Global reach","coverage.title":"One operating standard. Nineteen countries.","coverage.sub":"From Western Europe to Latin America, from West Africa to Southeast Asia — the same warehousing, delivery and compliance standard everywhere we operate. Need a market we don't cover yet? We open it.",
+  "coverage.chip1":"19 countries","coverage.chip2":"4 continents","coverage.chip3":"24⁠–⁠48h delivery",
   "coverage.regionEurope":"Europe","coverage.regionAmericas":"Americas","coverage.regionAfrica":"Africa","coverage.regionAsia":"Asia-Pacific",
-  "case.eyebrow":"Proven at scale","case.title":"Seven years. One partner. €250M in managed revenue.","case.sub":"Since 2019 we've run the entire supply chain — sourcing, warehousing, delivery, finance and technology — for a leading food supplements and cosmetics brand.",
-  "case.stat1":"Annual revenue managed","case.stat2":"Net profit generated / month","case.stat3":"Years, one partnership","case.stat4":"Markets served",
-  "case.b1":"Full Cash on Delivery infrastructure across every market","case.b2":"Custom CRM + AI automation cutting operational overhead","case.b3":"Dedicated warehouse network with 24–48h delivery","case.b4":"Continuous financial and legal structuring as the business scaled",
+  "case.eyebrow":"Proven at scale","case.title":"Seven years. One client. €250M in annual turnover.","case.sub":"Since 2019 we've run the entire supply chain — sourcing, warehousing, delivery, finance and technology — for a leading food supplements and cosmetics brand.",
+  "case.stat1":"Annual turnover","case.stat2":"Monthly net profit","case.stat3":"Years with one client","case.stat4":"Markets served",
+  "case.b1":"Full cash-on-delivery infrastructure in every market","case.b2":"Custom CRM and AI automation cutting operational overhead","case.b3":"Dedicated warehouse network with 24⁠–⁠48h delivery","case.b4":"Continuous financial and legal structuring as the business scaled",
+  "band.title":"Your product on your customer's doorstep in 24⁠–⁠48 hours.","band.sub":"Nineteen countries — that's where we operate today, not where we stop. We open fulfilment centres in any country on earth and build a courier network from the ground up when no carrier meets the standard. We did exactly that across 18 states of Mexico.","band.cta":"Book a Call",
+  "contact.note":"No pitch deck. One 30-minute call, and you leave with a costed plan for what your supply chain should look like.",
   "process.eyebrow":"How we work","process.title":"From audit to autopilot",
   "process.s1t":"Discovery & Audit","process.s1d":"We map your product, margins and markets, and audit your current supply chain for cost and speed.",
   "process.s2t":"Infrastructure Design","process.s2d":"We design the legal entity, financial rails, warehousing footprint and delivery network for each market you enter.",
-  "process.s3t":"Launch & Integration","process.s3d":"We deploy custom CRM and AI automation, integrate carriers and payment methods including COD, and go live.",
+  "process.s3t":"Launch & Integration","process.s3d":"We deploy the custom CRM and AI automation, integrate carriers and payment methods including COD, and go live.",
   "process.s4t":"Scale & Optimise","process.s4d":"We continuously renegotiate rates, expand coverage and tune automation as your volumes grow.",
-  "why.eyebrow":"Why Delivery Consult","why.title":"Built by operators, not consultants",
-  "why.c1t":"Years Hands-On","why.c1d":"We've run this exact playbook ourselves — not advised from the sidelines.",
+  "why.eyebrow":"Why Delivery Consult","why.title":"We are operators, not consultants",
+  "why.c1t":"Years Hands-On","why.c1d":"We've run this playbook ourselves — not advised on it from the sidelines.",
   "why.c2t":"In-House Tech Team","why.c2d":"Custom CRM and AI automation built and maintained internally, not outsourced.",
   "why.c3t":"Full-Stack Supply Chain","why.c3d":"Procurement, warehousing, delivery, finance and legal — one accountable partner end-to-end.",
-  "why.c4t":"Proven at Real Scale","why.c4d":"€250M in annual revenue managed for a single client over seven consecutive years.",
-  "contact.eyebrow":"Let's talk","contact.title":"Tell us about your supply chain","contact.sub":"Whether you need a single market or all nineteen, we'll design the infrastructure around your product.",
-  "contact.emailLbl":"Email","contact.phoneLbl":"Phone","contact.entityLbl":"Registered Entity","contact.companyNo":"Company number",
+  "why.c4t":"Proven at Real Scale","why.c4d":"€250M in annual turnover — seven consecutive years with the same client.",
+  "contact.eyebrow":"Let's talk","contact.title":"Tell us about your supply chain","contact.sub":"Whether you need one market, all nineteen, or one we haven't opened yet — we design the infrastructure around your product.",
+  "contact.emailLbl":"Email","contact.phoneLbl":"Phone","contact.entityLbl":"Registered entity","contact.companyNo":"Company number",
   "contact.name":"Name","contact.company":"Company","contact.email":"Email","contact.message":"Message","contact.placeholder":"Tell us about your product, markets and volumes...",
   "contact.submit":"Send Message","contact.success":"Thanks — we'll be in touch within one business day.","contact.error":"Something went wrong — please email us directly at business@delivery-consult.com.",
-  "footer.tagline":"Global supply chain infrastructure — procurement, warehousing and 24–48h delivery in 19 countries.",
+  "footer.tagline":"Global supply chain infrastructure — procurement, warehousing and 24⁠–⁠48h delivery in 19 countries.",
   "footer.navTitle":"Navigate","footer.contactTitle":"Contact","footer.legal":"© 2026 VITAWAVE LTD. All rights reserved."
 },
 es:{
-  "nav.services":"Servicios","nav.coverage":"Cobertura","nav.case":"Casos","nav.process":"Proceso","nav.why":"Por qué nosotros","nav.contact":"Contacto","nav.cta":"Agendar llamada",
-  "mega.s1t":"Compras y abastecimiento","mega.s1d":"Red global de proveedores, negociada en tu nombre",
-  "mega.s2t":"Almacenamiento y fulfillment","mega.s2d":"Centros de fulfillment en cualquier país, a tu medida",
-  "mega.s3t":"Entrega exprés","mega.s3d":"Entrega en 24–48h en 19 países",
-  "mega.s4t":"Financiero y legal","mega.s4d":"Constitución, COD, liquidación transfronteriza",
-  "mega.s5t":"CRM a medida e IA","mega.s5d":"Ingeniería interna, construida para ti",
-  "mega.s6t":"Modelos a medida","mega.s6d":"Un modelo operativo, no una plantilla",
+  "nav.services":"Servicios","nav.coverage":"Cobertura","nav.case":"Casos","nav.process":"Proceso","nav.why":"Por qué nosotros","nav.contact":"Contacto","nav.cta":"Reservar llamada",
   "hero.eyebrow":"Socio global de cadena de suministro desde 2019",
   "hero.title":"Construimos cadenas de suministro que se mueven a la <span class=\"grad-text\">velocidad de la demanda.</span>",
-  "hero.sub":"Compras, almacenamiento y entrega exprés en 24–48h en 19 países, respaldados por infraestructura financiera, legal y de IA construida para escalar.",
-  "hero.cta1":"Agendar una consulta","hero.cta2":"Ver cobertura","hero.badge":"Estándar de entrega exprés",
-  "hero.stat1":"Países cubiertos","hero.stat2":"Entrega exprés","hero.stat3":"Ingresos de clientes gestionados","hero.stat4":"Años en operación",
+  "hero.sub":"Compras, almacenamiento y entrega exprés en 24⁠–⁠48 h en 19 países, respaldados por una infraestructura financiera, legal y de IA diseñada para escalar.",
+  "hero.cta1":"Reservar una consulta","hero.cta2":"Ver cobertura","hero.badge":"Estándar de entrega exprés",
+  "hero.stat1":"Países cubiertos","hero.stat2":"Entrega exprés","hero.stat3":"Facturación anual","hero.stat4":"Años en operación",
   "services.eyebrow":"Qué hacemos","services.title":"Infraestructura de cadena de suministro de extremo a extremo, desarrollada internamente","services.sub":"Seis capacidades. Un solo equipo responsable de principio a fin.",
-  "services.c1t":"Compras y abastecimiento","services.c1d":"Buscamos, evaluamos y negociamos con fabricantes en tu nombre, construyendo cadenas de suministro que aguantan a gran escala, no solo sobre el papel.",
-  "services.c2t":"Almacenamiento y fulfillment","services.c2d":"Montamos centros de fulfillment y operaciones de almacén en cualquier país del mundo: picking, embalaje y despacho a tu especificación exacta.",
-  "services.c3t":"Red de entrega exprés","services.c3d":"Siete años de relaciones con transportistas nos permiten negociar las tarifas exprés más competitivas del mercado, con entrega garantizada en 24–48h en 19 países.",
-  "services.c4t":"Infraestructura financiera y legal","services.c4d":"Constitución de empresas, licencias y operativa completa de contra reembolso (COD), con liquidación transfronteriza en cualquier divisa, incluidas monedas digitales modernas, disponible en cualquier parte del mundo.",
+  "services.c1t":"Compras y abastecimiento","services.c1d":"Buscamos fabricantes, los evaluamos y negociamos con ellos en tu nombre, construyendo cadenas de suministro que aguantan a gran escala, no solo sobre el papel.",
+  "services.c2t":"Almacenamiento y logística","services.c2d":"Abrimos centros logísticos y ponemos en marcha operaciones de almacén en cualquier país del mundo, no solo en los 19 que ya cubrimos. La preparación de pedidos, el embalaje y la expedición se ajustan exactamente a tus especificaciones.",
+  "services.c3t":"Red de entrega exprés","services.c3d":"Siete años de relaciones con los transportistas nos permiten negociar las tarifas exprés más competitivas del mercado. Donde ningún transportista cumpla el estándar, construimos nuestro propio servicio de mensajería desde cero —como hicimos en 18 estados de México— y, en cualquier caso, mantenemos la entrega en 24⁠–⁠48 h.",
+  "services.c4t":"Infraestructura financiera y legal","services.c4d":"Constitución de empresas, licencias y operativa completa de contrarreembolso (COD), con liquidación transfronteriza en cualquier divisa, incluidos los activos digitales modernos, en todos los mercados donde operamos.",
   "services.c5t":"CRM a medida y automatización con IA","services.c5d":"Nuestro equipo de ingeniería interno desarrolla sistemas CRM a medida desde cero y automatiza las operaciones de principio a fin con IA.",
   "services.c6t":"Modelos operativos a medida","services.c6d":"Sin plantillas. Cada cliente recibe un modelo operativo diseñado en torno a su producto, sus mercados y sus márgenes.",
-  "coverage.eyebrow":"Alcance global","coverage.title":"Un mismo estándar operativo. Diecinueve países.","coverage.sub":"Desde Europa Occidental hasta Latinoamérica, de África Occidental al Sudeste Asiático: el mismo estándar de almacenamiento, entrega y cumplimiento en cada mercado donde operamos.",
-  "coverage.chip1":"19 países","coverage.chip2":"4 continentes","coverage.chip3":"Estándar de entrega 24–48h",
+  "coverage.eyebrow":"Alcance global","coverage.title":"Un mismo estándar operativo. Diecinueve países.","coverage.sub":"De Europa Occidental a América Latina, de África Occidental al Sudeste Asiático: el mismo estándar de almacenamiento, entrega y cumplimiento normativo en todos los mercados donde operamos. ¿Necesitas un mercado que aún no cubramos? Lo abrimos.",
+  "coverage.chip1":"19 países","coverage.chip2":"4 continentes","coverage.chip3":"Entrega en 24⁠–⁠48 h",
   "coverage.regionEurope":"Europa","coverage.regionAmericas":"América","coverage.regionAfrica":"África","coverage.regionAsia":"Asia-Pacífico",
-  "case.eyebrow":"Probado a escala","case.title":"Siete años. Un mismo socio. €250M en ingresos gestionados.","case.sub":"Desde 2019 gestionamos toda la cadena de suministro (compras, almacenamiento, entrega, finanzas y tecnología) de una marca líder de suplementos alimenticios y cosméticos.",
-  "case.stat1":"Ingresos anuales gestionados","case.stat2":"Beneficio neto generado / mes","case.stat3":"Años, una misma alianza","case.stat4":"Mercados atendidos",
-  "case.b1":"Infraestructura completa de contra reembolso (COD) en cada mercado","case.b2":"CRM a medida y automatización con IA que redujeron los costos operativos","case.b3":"Red de almacenes dedicada con entrega en 24–48h","case.b4":"Estructuración financiera y legal continua a medida que el negocio escalaba",
+  "case.eyebrow":"Probado a escala","case.title":"Siete años. Un solo cliente. 250 M€ de facturación anual.","case.sub":"Desde 2019 gestionamos toda la cadena de suministro (compras, almacenamiento, entrega, finanzas y tecnología) de una marca líder de complementos alimenticios y cosméticos.",
+  "case.stat1":"Facturación anual","case.stat2":"Beneficio neto mensual","case.stat3":"Años, una misma alianza","case.stat4":"Mercados atendidos",
+  "case.b1":"Infraestructura completa de contrarreembolso (COD) en cada mercado","case.b2":"CRM a medida y automatización con IA que redujeron los costes operativos","case.b3":"Red de almacenes dedicada con entrega en 24⁠–⁠48 h","case.b4":"Estructuración financiera y legal continua a medida que el negocio escalaba",
+  "band.title":"Tu producto, en la puerta de tu cliente en 24⁠–⁠48 horas.","band.sub":"Hoy operamos en diecinueve países, y ahí no nos detenemos. Abrimos centros logísticos en cualquier país del mundo y construimos una red de mensajería desde cero cuando ningún transportista está a la altura. Es exactamente lo que hicimos en 18 estados de México.","band.cta":"Reservar llamada",
+  "contact.note":"Sin presentaciones comerciales. Una llamada de 30 minutos y te llevas una estimación con costes de cómo debería ser tu cadena de suministro.",
   "process.eyebrow":"Cómo trabajamos","process.title":"De la auditoría al piloto automático",
-  "process.s1t":"Diagnóstico y auditoría","process.s1d":"Mapeamos tu producto, márgenes y mercados, y auditamos tu cadena de suministro actual en términos de costo y velocidad.",
-  "process.s2t":"Diseño de infraestructura","process.s2d":"Diseñamos la entidad legal, la infraestructura financiera, la huella de almacenamiento y la red de entrega para cada mercado que abordas.",
-  "process.s3t":"Lanzamiento e integración","process.s3d":"Desplegamos el CRM a medida y la automatización con IA, integramos transportistas y métodos de pago incluyendo COD, y ponemos la operación en marcha.",
+  "process.s1t":"Diagnóstico y auditoría","process.s1d":"Analizamos tu producto, tus márgenes y tus mercados, y auditamos tu cadena de suministro actual en costes y tiempos.",
+  "process.s2t":"Diseño de infraestructura","process.s2d":"Diseñamos la entidad jurídica, la infraestructura financiera, el despliegue de almacenes y la red de entrega para cada mercado al que te diriges.",
+  "process.s3t":"Lanzamiento e integración","process.s3d":"Desplegamos el CRM a medida y la automatización con IA, integramos transportistas y métodos de pago, incluido el contrarreembolso (COD), y ponemos la operación en marcha.",
   "process.s4t":"Escalado y optimización","process.s4d":"Renegociamos tarifas, ampliamos cobertura y ajustamos la automatización continuamente a medida que crecen tus volúmenes.",
-  "why.eyebrow":"Por qué Delivery Consult","why.title":"Construido por operadores, no por consultores",
-  "why.c1t":"Años de experiencia directa","why.c1d":"Hemos ejecutado exactamente este mismo modelo nosotros mismos, no nos limitamos a recomendarlo desde fuera.",
+  "why.eyebrow":"Por qué Delivery Consult","why.title":"Somos operadores, no consultores",
+  "why.c1t":"Años de experiencia directa","why.c1d":"Hemos operado este mismo modelo en primera persona; no nos limitamos a recomendarlo desde fuera.",
   "why.c2t":"Equipo tecnológico interno","why.c2d":"CRM a medida y automatización con IA desarrollados y mantenidos internamente, no subcontratados.",
-  "why.c3t":"Cadena de suministro integral","why.c3d":"Compras, almacenamiento, entrega, finanzas y legal: un único socio responsable de principio a fin.",
-  "why.c4t":"Probado a escala real","why.c4d":"€250M en ingresos anuales gestionados para un solo cliente durante siete años consecutivos.",
-  "contact.eyebrow":"Hablemos","contact.title":"Cuéntanos sobre tu cadena de suministro","contact.sub":"Ya necesites un solo mercado o los diecinueve, diseñaremos la infraestructura en torno a tu producto.",
+  "why.c3t":"Cadena de suministro integral","why.c3d":"Compras, almacenamiento, entrega, finanzas y asesoría jurídica: un único socio responsable de principio a fin.",
+  "why.c4t":"Probado a escala real","why.c4d":"250 M€ de facturación anual, siete años consecutivos con el mismo cliente.",
+  "contact.eyebrow":"Hablemos","contact.title":"Háblanos de tu cadena de suministro","contact.sub":"Ya sea un solo mercado, los diecinueve o un país que aún no hayamos abierto, diseñamos la infraestructura en torno a tu producto.",
   "contact.emailLbl":"Correo electrónico","contact.phoneLbl":"Teléfono","contact.entityLbl":"Entidad registrada","contact.companyNo":"Número de empresa",
-  "contact.name":"Nombre","contact.company":"Empresa","contact.email":"Correo electrónico","contact.message":"Mensaje","contact.placeholder":"Cuéntanos sobre tu producto, mercados y volúmenes...",
-  "contact.submit":"Enviar mensaje","contact.success":"Gracias — nos pondremos en contacto en un día hábil.","contact.error":"Algo salió mal — escríbenos directamente a business@delivery-consult.com.",
-  "footer.tagline":"Infraestructura global de cadena de suministro: compras, almacenamiento y entrega en 24–48h en 19 países.",
+  "contact.name":"Nombre","contact.company":"Empresa","contact.email":"Correo electrónico","contact.message":"Mensaje","contact.placeholder":"Háblanos de tu producto, tus mercados y tus volúmenes...",
+  "contact.submit":"Enviar mensaje","contact.success":"Gracias. Nos pondremos en contacto en un día laborable.","contact.error":"Algo ha salido mal. Escríbenos directamente a business@delivery-consult.com.",
+  "footer.tagline":"Infraestructura global de cadena de suministro: compras, almacenamiento y entrega en 24⁠–⁠48 h en 19 países.",
   "footer.navTitle":"Navegación","footer.contactTitle":"Contacto","footer.legal":"© 2026 VITAWAVE LTD. Todos los derechos reservados."
 },
 ru:{
   "nav.services":"Услуги","nav.coverage":"Покрытие","nav.case":"Кейс","nav.process":"Процесс","nav.why":"Почему мы","nav.contact":"Контакты","nav.cta":"Записаться",
-  "mega.s1t":"Закупка и снабжение","mega.s1d":"Глобальная сеть поставщиков, переговоры от вашего имени",
-  "mega.s2t":"Склад и фулфилмент","mega.s2d":"Фулфилмент-центры в любой стране, под ваши задачи",
-  "mega.s3t":"Экспресс-доставка","mega.s3d":"Доставка 24–48ч в 19 странах",
-  "mega.s4t":"Финансы и право","mega.s4d":"Регистрация, COD, трансграничные расчёты",
-  "mega.s5t":"CRM и ИИ","mega.s5d":"Собственная разработка под вас",
-  "mega.s6t":"Индивидуальные модели","mega.s6d":"Операционная модель, а не шаблон",
   "hero.eyebrow":"Глобальный партнёр по supply chain с 2019 года",
   "hero.title":"Мы строим цепочки поставок, которые двигаются со <span class=\"grad-text\">скоростью спроса.</span>",
-  "hero.sub":"Закупка, склад и экспресс-доставка 24–48 часов в 19 странах — на базе финансовой, юридической и AI-инфраструктуры, готовой к масштабированию.",
+  "hero.sub":"Закупка, склад и экспресс-доставка 24⁠–⁠48 часов в 19 странах — на базе финансовой, юридической и AI-инфраструктуры, готовой к масштабированию.",
   "hero.cta1":"Записаться на консультацию","hero.cta2":"Смотреть покрытие","hero.badge":"Стандарт экспресс-доставки",
-  "hero.stat1":"стран покрытия","hero.stat2":"экспресс-доставка","hero.stat3":"оборот клиента под управлением","hero.stat4":"лет в операционной работе",
-  "services.eyebrow":"Что мы делаем","services.title":"Сквозная инфраструктура supply chain, построенная своими руками","services.sub":"Шесть направлений. Одна команда, отвечающая за весь путь.",
-  "services.c1t":"Закупка и снабжение","services.c1d":"Находим, проверяем и ведём переговоры с производителями от вашего имени — выстраивая цепочки поставок, которые выдерживают масштаб, а не только выглядят красиво на бумаге.",
-  "services.c2t":"Склад и фулфилмент","services.c2d":"Разворачиваем фулфилмент-центры и складские операции в любой стране мира: приёмка, упаковка и отгрузка под ваши точные требования.",
-  "services.c3t":"Сеть экспресс-доставки","services.c3d":"Семь лет отношений с перевозчиками позволяют нам выбивать самые выгодные тарифы на экспресс-доставку с гарантией 24–48 часов в 19 странах.",
-  "services.c4t":"Финансовая и юридическая инфраструктура","services.c4d":"Открытие компаний, лицензирование и полноценная работа с наложенным платежом (COD) — с трансграничными расчётами в любой валюте, включая современные цифровые активы, приземлением средств в любой точке мира.",
-  "services.c5t":"CRM под заказ и автоматизация на ИИ","services.c5d":"Наша собственная инженерная команда разрабатывает CRM с нуля под любые задачи и автоматизирует процессы с помощью искусственного интеллекта.",
+  "hero.stat1":"стран покрытия","hero.stat2":"экспресс-доставка","hero.stat3":"годовой оборот","hero.stat4":"лет в операционной работе",
+  "services.eyebrow":"Что мы делаем","services.title":"Сквозная инфраструктура supply chain, построенная собственными силами","services.sub":"Шесть направлений. Одна команда, отвечающая за весь путь.",
+  "services.c1t":"Закупка и снабжение","services.c1d":"Находим и проверяем производителей, ведём переговоры от вашего имени — выстраивая цепочки поставок, которые выдерживают масштаб, а не только выглядят красиво на бумаге.",
+  "services.c2t":"Склад и фулфилмент","services.c2d":"Открываем фулфилмент-центры и запускаем складские операции в любой стране мира — не только в 19, где уже работаем. Приёмка, комплектация и отгрузка настраиваются точно под ваш товар.",
+  "services.c3t":"Сеть экспресс-доставки","services.c3d":"Семь лет работы с перевозчиками позволяют нам договариваться о лучших экспресс-тарифах на рынке. Там, где ни один перевозчик не отвечает нашему стандарту, строим собственную курьерскую службу с нуля — как в 18 штатах Мексики — и в любом случае держим срок доставки 24⁠–⁠48 часов.",
+  "services.c4t":"Финансовая и юридическая инфраструктура","services.c4d":"Открытие компаний, лицензирование и полноценная работа с наложенным платежом (COD) — с трансграничными расчётами в любой валюте, включая современные цифровые активы, с зачислением средств на всех рынках, где мы работаем.",
+  "services.c5t":"CRM под ваши задачи и AI-автоматизация","services.c5d":"Наша собственная инженерная команда разрабатывает CRM с нуля под любые задачи и автоматизирует процессы с помощью искусственного интеллекта.",
   "services.c6t":"Индивидуальные операционные модели","services.c6d":"Никаких шаблонов. Каждый клиент получает операционную модель, выстроенную вокруг его продукта, рынков и маржинальности.",
-  "coverage.eyebrow":"Глобальное присутствие","coverage.title":"Единый стандарт работы. Девятнадцать стран.","coverage.sub":"От Западной Европы до Латинской Америки, от Западной Африки до Юго-Восточной Азии — один и тот же стандарт склада, доставки и комплаенса на каждом рынке.",
-  "coverage.chip1":"19 стран","coverage.chip2":"4 континента","coverage.chip3":"Стандарт доставки 24–48ч",
+  "coverage.eyebrow":"Глобальное присутствие","coverage.title":"Единый стандарт работы. Девятнадцать стран.","coverage.sub":"От Западной Европы до Латинской Америки, от Западной Африки до Юго-Восточной Азии — один и тот же стандарт склада, доставки и комплаенса везде, где мы работаем. Нужен рынок, которого пока нет в списке? Откроем.",
+  "coverage.chip1":"19 стран","coverage.chip2":"4 континента","coverage.chip3":"Доставка 24⁠–⁠48 ч",
   "coverage.regionEurope":"Европа","coverage.regionAmericas":"Америка","coverage.regionAfrica":"Африка","coverage.regionAsia":"Азиатско-Тихоокеанский регион",
-  "case.eyebrow":"Проверено масштабом","case.title":"Семь лет. Один партнёр. €250М оборота под управлением.","case.sub":"С 2019 года мы полностью ведём supply chain — закупку, склад, доставку, финансы и технологии — для крупного бренда в сегменте food supplements и косметики.",
-  "case.stat1":"Годовой оборот под управлением","case.stat2":"Чистая прибыль в месяц","case.stat3":"Лет непрерывного партнёрства","case.stat4":"Рынков обслуживается",
-  "case.b1":"Полноценная инфраструктура COD на каждом рынке","case.b2":"CRM под заказ и AI-автоматизация, снизившие операционные издержки","case.b3":"Выделенная сеть складов с доставкой 24–48 часов","case.b4":"Непрерывная финансовая и юридическая структуризация по мере роста бизнеса",
+  "case.eyebrow":"Проверено масштабом","case.title":"Семь лет. Один клиент. €250 млн годового оборота.","case.sub":"С 2019 года мы полностью ведём supply chain — закупку, склад, доставку, финансы и технологии — для крупного бренда в сегменте пищевых добавок и косметики.",
+  "case.stat1":"Годовой оборот","case.stat2":"Чистая прибыль в месяц","case.stat3":"Лет непрерывного партнёрства","case.stat4":"Обслуживаемых рынков",
+  "case.b1":"Полноценная инфраструктура COD на каждом рынке","case.b2":"CRM под ваши задачи и AI-автоматизация, снизившие операционные издержки","case.b3":"Выделенная сеть складов с доставкой 24⁠–⁠48 часов","case.b4":"Непрерывное финансовое и юридическое структурирование по мере роста бизнеса",
+  "band.title":"Ваш товар — на пороге клиента за 24⁠–⁠48 часов.","band.sub":"19 стран — это наша география сегодня, а не предел. Откроем фулфилмент в любой стране мира и построим собственную курьерскую службу с нуля там, где нас не устраивает ни один перевозчик. Именно так мы и сделали в 18 штатах Мексики.","band.cta":"Записаться",
+  "contact.note":"Без презентаций. 30 минут разговора — и у вас на руках расчёт того, как должна быть устроена ваша цепочка поставок.",
   "process.eyebrow":"Как мы работаем","process.title":"От аудита до автопилота",
   "process.s1t":"Аудит и диагностика","process.s1d":"Разбираем ваш продукт, маржинальность и рынки, аудируем текущую цепочку поставок по стоимости и скорости.",
-  "process.s2t":"Проектирование инфраструктуры","process.s2d":"Проектируем юридическое лицо, финансовые рельсы, складскую сеть и логистику доставки под каждый рынок.",
-  "process.s3t":"Запуск и интеграция","process.s3d":"Разворачиваем CRM под заказ и AI-автоматизацию, интегрируем перевозчиков и способы оплаты, включая COD, и выходим в запуск.",
-  "process.s4t":"Масштабирование и оптимизация","process.s4d":"Постоянно пересогласовываем тарифы, расширяем покрытие и донастраиваем автоматизацию по мере роста объёмов.",
-  "why.eyebrow":"Почему Delivery Consult","why.title":"Построено практиками, а не консультантами",
-  "why.c1t":"Лет практического опыта","why.c1d":"Мы сами прошли этот путь операционно — а не консультировали со стороны.",
-  "why.c2t":"Собственная техническая команда","why.c2d":"CRM под заказ и AI-автоматизация разрабатываются и поддерживаются внутри команды, а не на аутсорсе.",
+  "process.s2t":"Проектирование инфраструктуры","process.s2d":"Проектируем структуру юридического лица, платёжную инфраструктуру, складскую сеть и логистику доставки под каждый рынок.",
+  "process.s3t":"Запуск и интеграция","process.s3d":"Разворачиваем CRM под ваши задачи и AI-автоматизацию, интегрируем перевозчиков и способы оплаты, включая COD, и запускаемся.",
+  "process.s4t":"Масштабирование и оптимизация","process.s4d":"Постоянно пересматриваем тарифы, расширяем покрытие и донастраиваем автоматизацию по мере роста объёмов.",
+  "why.eyebrow":"Почему Delivery Consult","why.title":"Мы практики, а не консультанты",
+  "why.c1t":"Лет практического опыта","why.c1d":"Мы сами прошли этот путь на практике — а не консультировали со стороны.",
+  "why.c2t":"Собственная техническая команда","why.c2d":"CRM под ваши задачи и AI-автоматизация разрабатываются и поддерживаются внутри компании, а не на аутсорсинге.",
   "why.c3t":"Полный цикл supply chain","why.c3d":"Закупка, склад, доставка, финансы и юридические вопросы — один ответственный партнёр от начала до конца.",
-  "why.c4t":"Проверено на реальном масштабе","why.c4d":"€250М годового оборота под управлением для одного клиента на протяжении семи лет подряд.",
-  "contact.eyebrow":"Давайте обсудим","contact.title":"Расскажите о своей цепочке поставок","contact.sub":"Нужен один рынок или все девятнадцать — мы спроектируем инфраструктуру под ваш продукт.",
-  "contact.emailLbl":"Email","contact.phoneLbl":"Телефон","contact.entityLbl":"Реквизиты компании","contact.companyNo":"Номер компании",
+  "why.c4t":"Проверено на реальном масштабе","why.c4d":"€250 млн годового оборота — семь лет подряд с одним клиентом.",
+  "contact.eyebrow":"Давайте обсудим","contact.title":"Расскажите о своей цепочке поставок","contact.sub":"Нужен один рынок, все девятнадцать или страна, которой пока нет в списке, — спроектируем инфраструктуру под ваш продукт.",
+  "contact.emailLbl":"Email","contact.phoneLbl":"Телефон","contact.entityLbl":"Реквизиты компании","contact.companyNo":"Регистрационный номер",
   "contact.name":"Имя","contact.company":"Компания","contact.email":"Email","contact.message":"Сообщение","contact.placeholder":"Расскажите о продукте, рынках и объёмах...",
   "contact.submit":"Отправить сообщение","contact.success":"Спасибо! Мы свяжемся с вами в течение одного рабочего дня.","contact.error":"Что-то пошло не так — напишите нам напрямую на business@delivery-consult.com.",
-  "footer.tagline":"Глобальная инфраструктура supply chain: закупка, склад и доставка 24–48 часов в 19 странах.",
+  "footer.tagline":"Глобальная инфраструктура supply chain: закупка, склад и доставка 24⁠–⁠48 часов в 19 странах.",
   "footer.navTitle":"Навигация","footer.contactTitle":"Контакты","footer.legal":"© 2026 VITAWAVE LTD. Все права защищены."
 },
 fr:{
   "nav.services":"Services","nav.coverage":"Couverture","nav.case":"Étude de cas","nav.process":"Processus","nav.why":"Pourquoi nous","nav.contact":"Contact","nav.cta":"Prendre rendez-vous",
-  "mega.s1t":"Achat et sourcing","mega.s1d":"Réseau mondial de fournisseurs, dont nous négocions les conditions en votre nom",
-  "mega.s2t":"Entreposage et fulfillment","mega.s2d":"Centres logistiques dans tous les pays, selon vos exigences",
-  "mega.s3t":"Livraison express","mega.s3d":"Livraison en 24–48h dans 19 pays",
-  "mega.s4t":"Finance et juridique","mega.s4d":"Création de société, COD, règlements transfrontaliers",
-  "mega.s5t":"CRM sur mesure et IA","mega.s5d":"Développement interne, conçu pour vous",
-  "mega.s6t":"Modèles sur mesure","mega.s6d":"Un modèle opérationnel, pas un gabarit",
-  "hero.eyebrow":"Partenaire mondial de la chaîne d'approvisionnement depuis 2019",
-  "hero.title":"Nous construisons des chaînes d'approvisionnement qui avancent à la <span class=\"grad-text\">vitesse de la demande.</span>",
-  "hero.sub":"Achat, entreposage et livraison express en 24–48h dans 19 pays, appuyés par une infrastructure financière, juridique et d'IA conçue pour accompagner la croissance.",
+  "hero.eyebrow":"Partenaire mondial de la chaîne d’approvisionnement depuis 2019",
+  "hero.title":"Nous construisons des chaînes d’approvisionnement qui avancent à la <span class=\"grad-text\">vitesse de la demande.</span>",
+  "hero.sub":"Achat, entreposage et livraison express en 24⁠–⁠48 h dans 19 pays, appuyés par une infrastructure financière, juridique et d’IA conçue pour accompagner la croissance.",
   "hero.cta1":"Prendre rendez-vous","hero.cta2":"Voir notre couverture","hero.badge":"Norme de livraison express",
-  "hero.stat1":"Pays couverts","hero.stat2":"Livraison express","hero.stat3":"Chiffre d'affaires client géré","hero.stat4":"Années d'activité",
-  "services.eyebrow":"Ce que nous faisons","services.title":"Une infrastructure de chaîne d'approvisionnement de bout en bout, développée en interne","services.sub":"Six expertises. Une seule équipe responsable, du début à la fin.",
-  "services.c1t":"Achat et sourcing","services.c1d":"Nous sourçons, sélectionnons et négocions avec les fabricants en votre nom, en bâtissant des lignes d'approvisionnement qui tiennent la charge à grande échelle, pas seulement sur le papier.",
-  "services.c2t":"Entreposage et fulfillment","services.c2d":"Nous mettons en place des centres de fulfillment et des opérations d'entrepôt dans n'importe quel pays du monde : préparation, emballage et expédition selon vos exigences exactes.",
-  "services.c3t":"Réseau de livraison express","services.c3d":"Sept années de relations avec les transporteurs nous permettent de négocier les tarifs express les plus compétitifs du marché, avec une livraison garantie en 24–48h dans 19 pays.",
-  "services.c4t":"Infrastructure financière et juridique","services.c4d":"Création de société, licences et gestion complète du contre-remboursement (COD), avec règlement transfrontalier dans toute devise, y compris les actifs numériques modernes, versés n'importe où dans le monde.",
-  "services.c5t":"CRM sur mesure et automatisation IA","services.c5d":"Notre équipe d'ingénierie interne développe des systèmes CRM sur mesure et automatise les opérations de bout en bout grâce à l'IA.",
+  "hero.stat1":"Pays couverts","hero.stat2":"Livraison express","hero.stat3":"Chiffre d’affaires annuel","hero.stat4":"Années d’activité",
+  "services.eyebrow":"Ce que nous faisons","services.title":"Une infrastructure de chaîne d’approvisionnement de bout en bout, développée en interne","services.sub":"Six expertises. Une seule équipe responsable, du début à la fin.",
+  "services.c1t":"Achat et sourcing","services.c1d":"Nous identifions les fabricants, les qualifions et négocions avec eux en votre nom, en bâtissant des lignes d’approvisionnement qui tiennent la charge à grande échelle, pas seulement sur le papier.",
+  "services.c2t":"Entreposage et logistique","services.c2d":"Nous ouvrons des centres logistiques et mettons en place des opérations d’entreposage dans n’importe quel pays du monde, et pas seulement dans les 19 que nous couvrons déjà. Préparation de commandes, emballage et expédition sont paramétrés exactement selon vos spécifications.",
+  "services.c3t":"Réseau de livraison express","services.c3d":"Sept années de relations avec les transporteurs nous permettent de négocier les tarifs express les plus compétitifs du marché. Là où aucun transporteur n’atteint le niveau requis, nous construisons notre propre service de coursiers à partir de zéro — comme dans 18 États du Mexique — et, dans tous les cas, nous tenons le délai de 24⁠–⁠48 h.",
+  "services.c4t":"Infrastructure financière et juridique","services.c4d":"Création de société, licences et gestion complète du contre-remboursement (COD), avec règlement transfrontalier dans toute devise, y compris les actifs numériques modernes, sur tous les marchés où nous opérons.",
+  "services.c5t":"CRM sur mesure et automatisation IA","services.c5d":"Notre équipe d’ingénierie interne développe des systèmes CRM sur mesure et automatise les opérations de bout en bout grâce à l’IA.",
   "services.c6t":"Modèles opérationnels sur mesure","services.c6d":"Aucun gabarit. Chaque client reçoit un modèle opérationnel conçu autour de son produit, de ses marchés et de ses marges.",
-  "coverage.eyebrow":"Portée mondiale","coverage.title":"Un seul standard opérationnel. Dix-neuf pays.","coverage.sub":"De l'Europe occidentale à l'Amérique latine, de l'Afrique de l'Ouest à l'Asie du Sud-Est : le même standard d'entreposage, de livraison et de conformité, partout où nous opérons.",
-  "coverage.chip1":"19 pays","coverage.chip2":"4 continents","coverage.chip3":"Norme de livraison 24–48h",
+  "coverage.eyebrow":"Portée mondiale","coverage.title":"Un seul standard opérationnel. Dix-neuf pays.","coverage.sub":"De l’Europe de l’Ouest à l’Amérique latine, de l’Afrique de l’Ouest à l’Asie du Sud-Est : le même standard d’entreposage, de livraison et de conformité partout où nous opérons. Besoin d’un marché que nous ne couvrons pas encore ? Nous l’ouvrons.",
+  "coverage.chip1":"19 pays","coverage.chip2":"4 continents","coverage.chip3":"Livraison en 24⁠–⁠48 h",
   "coverage.regionEurope":"Europe","coverage.regionAmericas":"Amériques","coverage.regionAfrica":"Afrique","coverage.regionAsia":"Asie-Pacifique",
-  "case.eyebrow":"Éprouvé à grande échelle","case.title":"Sept ans. Un seul partenaire. 250 M€ de chiffre d'affaires géré.","case.sub":"Depuis 2019, nous gérons l'intégralité de la chaîne d'approvisionnement — sourcing, entreposage, livraison, finance et technologie — pour une marque leader de compléments alimentaires et de cosmétique.",
-  "case.stat1":"Chiffre d'affaires annuel géré","case.stat2":"Bénéfice net généré / mois","case.stat3":"Ans, un partenariat unique","case.stat4":"Marchés desservis",
-  "case.b1":"Infrastructure complète de contre-remboursement (COD) sur chaque marché","case.b2":"CRM sur mesure et automatisation IA réduisant les coûts opérationnels","case.b3":"Réseau d'entrepôts dédié avec livraison en 24–48h","case.b4":"Structuration financière et juridique continue à mesure que l'entreprise se développait",
-  "process.eyebrow":"Comment nous travaillons","process.title":"De l'audit au pilotage automatique",
-  "process.s1t":"Diagnostic et audit","process.s1d":"Nous analysons votre produit, vos marges et vos marchés, et auditons votre chaîne d'approvisionnement actuelle en matière de coût et de rapidité.",
-  "process.s2t":"Conception de l'infrastructure","process.s2d":"Nous concevons l'entité juridique, les rails de paiement, l'implantation logistique et le réseau de livraison pour chaque marché que vous abordez.",
-  "process.s3t":"Lancement et intégration","process.s3d":"Nous déployons le CRM sur mesure et l'automatisation IA, intégrons les transporteurs et les moyens de paiement, y compris le COD, puis lançons l'activité.",
-  "process.s4t":"Mise à l'échelle et optimisation","process.s4d":"Nous renégocions continuellement les tarifs, élargissons la couverture et ajustons l'automatisation à mesure que vos volumes augmentent.",
-  "why.eyebrow":"Pourquoi Delivery Consult","why.title":"Conçu par des opérateurs, pas par des consultants",
-  "why.c1t":"Années d'expérience opérationnelle","why.c1d":"Nous avons nous-mêmes exécuté exactement ce modèle — sans nous contenter de le conseiller de l'extérieur.",
+  "case.eyebrow":"Éprouvé à grande échelle","case.title":"Sept ans. Un seul client. 250 M€ de chiffre d’affaires annuel.","case.sub":"Depuis 2019, nous gérons l’intégralité de la chaîne d’approvisionnement — sourcing, entreposage, livraison, finance et technologie — pour une marque leader de compléments alimentaires et de cosmétique.",
+  "case.stat1":"Chiffre d’affaires annuel","case.stat2":"Bénéfice net mensuel","case.stat3":"Ans, un seul partenariat","case.stat4":"Marchés desservis",
+  "case.b1":"Infrastructure complète de contre-remboursement (COD) sur chaque marché","case.b2":"CRM sur mesure et automatisation IA réduisant les coûts opérationnels","case.b3":"Réseau d’entrepôts dédié avec livraison en 24⁠–⁠48 h","case.b4":"Structuration financière et juridique continue à mesure que l’entreprise se développait",
+  "band.title":"Votre produit devant la porte de votre client en 24⁠–⁠48 heures.","band.sub":"Dix-neuf pays, c’est là que nous opérons aujourd’hui — ce n’est pas notre limite. Nous ouvrons un centre logistique dans n’importe quel pays du monde et bâtissons un réseau de coursiers à partir de zéro lorsqu’aucun transporteur ne convient. C’est exactement ce que nous avons fait dans 18 États du Mexique.","band.cta":"Prendre rendez-vous",
+  "contact.note":"Pas de présentation commerciale. Trente minutes d’échange, et vous repartez avec une estimation chiffrée de ce que devrait être votre chaîne d’approvisionnement.",
+  "process.eyebrow":"Comment nous travaillons","process.title":"De l’audit au pilotage automatique",
+  "process.s1t":"Diagnostic et audit","process.s1d":"Nous analysons votre produit, vos marges et vos marchés, et auditons votre chaîne d’approvisionnement actuelle sous l’angle du coût et de la rapidité.",
+  "process.s2t":"Conception de l’infrastructure","process.s2d":"Nous concevons l’entité juridique, les circuits de paiement, l’implantation logistique et le réseau de livraison pour chaque marché que vous abordez.",
+  "process.s3t":"Lancement et intégration","process.s3d":"Nous déployons le CRM sur mesure et l’automatisation IA, intégrons les transporteurs et les moyens de paiement, y compris le COD, puis lançons l’activité.",
+  "process.s4t":"Mise à l’échelle et optimisation","process.s4d":"Nous renégocions continuellement les tarifs, élargissons la couverture et ajustons l’automatisation à mesure que vos volumes augmentent.",
+  "why.eyebrow":"Pourquoi Delivery Consult","why.title":"Nous sommes des opérateurs, pas des consultants",
+  "why.c1t":"Années d’expérience opérationnelle","why.c1d":"Nous avons nous-mêmes exécuté exactement ce modèle — sans nous contenter de le conseiller de l’extérieur.",
   "why.c2t":"Équipe technique interne","why.c2d":"CRM sur mesure et automatisation IA développés et maintenus en interne, non externalisés.",
-  "why.c3t":"Chaîne d'approvisionnement intégrale","why.c3d":"Achat, entreposage, livraison, finance et juridique : un seul partenaire responsable de bout en bout.",
-  "why.c4t":"Éprouvé à grande échelle","why.c4d":"250 M€ de chiffre d'affaires annuel géré pour un seul client pendant sept années consécutives.",
-  "contact.eyebrow":"Parlons-en","contact.title":"Parlez-nous de votre chaîne d'approvisionnement","contact.sub":"Que vous ayez besoin d'un seul marché ou des dix-neuf, nous concevrons l'infrastructure autour de votre produit.",
-  "contact.emailLbl":"E-mail","contact.phoneLbl":"Téléphone","contact.entityLbl":"Entité enregistrée","contact.companyNo":"Numéro d'entreprise",
-  "contact.name":"Nom","contact.company":"Société","contact.email":"E-mail","contact.message":"Message","contact.placeholder":"Parlez-nous de votre produit, vos marchés et vos volumes...",
+  "why.c3t":"Chaîne d’approvisionnement intégrale","why.c3d":"Achat, entreposage, livraison, finance et juridique : un seul partenaire responsable de bout en bout.",
+  "why.c4t":"Éprouvé à grande échelle","why.c4d":"250 M€ de chiffre d’affaires annuel, sept années consécutives avec le même client.",
+  "contact.eyebrow":"Parlons-en","contact.title":"Parlez-nous de votre chaîne d’approvisionnement","contact.sub":"Que vous ayez besoin d’un seul marché, des dix-neuf ou d’un pays que nous n’avons pas encore ouvert, nous concevons l’infrastructure autour de votre produit.",
+  "contact.emailLbl":"E-mail","contact.phoneLbl":"Téléphone","contact.entityLbl":"Entité enregistrée","contact.companyNo":"Numéro d’entreprise",
+  "contact.name":"Nom","contact.company":"Société","contact.email":"E-mail","contact.message":"Message","contact.placeholder":"Parlez-nous de votre produit, de vos marchés et de vos volumes…",
   "contact.submit":"Envoyer le message","contact.success":"Merci — nous vous répondrons sous un jour ouvré.","contact.error":"Une erreur est survenue — merci de nous écrire directement à business@delivery-consult.com.",
-  "footer.tagline":"Infrastructure mondiale de chaîne d'approvisionnement : achat, entreposage et livraison en 24–48h dans 19 pays.",
+  "footer.tagline":"Infrastructure mondiale de chaîne d’approvisionnement : achat, entreposage et livraison en 24⁠–⁠48 h dans 19 pays.",
   "footer.navTitle":"Navigation","footer.contactTitle":"Contact","footer.legal":"© 2026 VITAWAVE LTD. Tous droits réservés."
 },
 de:{
   "nav.services":"Leistungen","nav.coverage":"Abdeckung","nav.case":"Fallstudie","nav.process":"Prozess","nav.why":"Warum wir","nav.contact":"Kontakt","nav.cta":"Termin vereinbaren",
-  "mega.s1t":"Beschaffung","mega.s1d":"Globales Lieferantennetzwerk, in Ihrem Namen verhandelt",
-  "mega.s2t":"Lagerung und Fulfillment","mega.s2d":"Fulfillment-Zentren in jedem Land, nach Ihren Vorgaben",
-  "mega.s3t":"Expresszustellung","mega.s3d":"Lieferung in 24–48h in 19 Ländern",
-  "mega.s4t":"Finanzen und Recht","mega.s4d":"Firmengründung, Nachnahme (COD), grenzüberschreitende Abwicklung",
-  "mega.s5t":"Individuelles CRM & KI","mega.s5d":"Eigene Entwicklung, auf Sie zugeschnitten",
-  "mega.s6t":"Maßgeschneiderte Modelle","mega.s6d":"Ein Betriebsmodell, keine Vorlage",
   "hero.eyebrow":"Globaler Supply-Chain-Partner seit 2019",
   "hero.title":"Wir bauen Lieferketten, die sich im <span class=\"grad-text\">Tempo der Nachfrage</span> bewegen.",
-  "hero.sub":"Beschaffung, Lagerung und Expresszustellung in 24–48 Stunden in 19 Ländern — abgesichert durch eine auf Wachstum ausgelegte Finanz-, Rechts- und KI-Infrastruktur.",
+  "hero.sub":"Beschaffung, Lagerung und Expresszustellung in 24⁠–⁠48 Stunden über 19 Länder hinweg – abgesichert durch eine auf Wachstum ausgelegte Finanz-, Rechts- und KI-Infrastruktur.",
   "hero.cta1":"Beratungstermin vereinbaren","hero.cta2":"Unsere Abdeckung ansehen","hero.badge":"Standard für Expresszustellung",
-  "hero.stat1":"Abgedeckte Länder","hero.stat2":"Expresszustellung","hero.stat3":"Verwalteter Kundenumsatz","hero.stat4":"Jahre Markterfahrung",
+  "hero.stat1":"Abgedeckte Länder","hero.stat2":"Expresszustellung","hero.stat3":"Jahresumsatz","hero.stat4":"Jahre Markterfahrung",
   "services.eyebrow":"Was wir tun","services.title":"Durchgängige Supply-Chain-Infrastruktur, intern entwickelt","services.sub":"Sechs Kompetenzen. Ein verantwortliches Team von Anfang bis Ende.",
-  "services.c1t":"Beschaffung","services.c1d":"Wir suchen, prüfen und verhandeln in Ihrem Namen mit Herstellern — und bauen Lieferlinien auf, die auch im großen Maßstab halten, nicht nur auf dem Papier.",
-  "services.c2t":"Lagerung und Fulfillment","services.c2d":"Wir errichten Fulfillment-Zentren und Lagerbetriebe in jedem Land der Welt — Kommissionierung, Verpackung und Versand exakt nach Ihren Vorgaben.",
-  "services.c3t":"Expresszustellungs-Netzwerk","services.c3d":"Sieben Jahre Beziehungen zu Transportunternehmen ermöglichen es uns, die besten Expresstarife am Markt auszuhandeln — mit garantierter Lieferung in 24–48 Stunden in 19 Ländern.",
-  "services.c4t":"Finanz- und Rechtsinfrastruktur","services.c4d":"Firmengründung, Lizenzierung und vollständige Abwicklung von Nachnahme (COD) — mit grenzüberschreitender Abwicklung in jeder Währung, einschließlich moderner digitaler Assets, weltweit verfügbar.",
-  "services.c5t":"Individuelles CRM & KI-Automatisierung","services.c5d":"Unser internes Entwicklungsteam baut maßgeschneiderte CRM-Systeme von Grund auf und automatisiert Abläufe durchgängig mit KI.",
+  "services.c1t":"Beschaffung","services.c1d":"Wir finden Hersteller, prüfen sie und verhandeln in Ihrem Namen – und bauen Lieferketten auf, die auch im großen Maßstab tragen, nicht nur auf dem Papier.",
+  "services.c2t":"Lagerung und Logistik","services.c2d":"Wir eröffnen Logistikzentren und Lagerstandorte in jedem Land der Welt – nicht nur in den 19 Märkten, die wir bereits abdecken. Kommissionierung, Verpackung und Versand richten wir exakt nach Ihren Vorgaben ein.",
+  "services.c3t":"Express-Zustellnetzwerk","services.c3d":"Sieben Jahre gewachsene Beziehungen zu Transportunternehmen ermöglichen es uns, die schärfsten Expresstarife am Markt zu verhandeln. Wo kein Transportunternehmen den Standard erfüllt, bauen wir einen eigenen Kurierdienst von Grund auf – wie in 18 Bundesstaaten Mexikos – und stellen in jedem Fall in 24⁠–⁠48 h zu.",
+  "services.c4t":"Finanz- und Rechtsinfrastruktur","services.c4d":"Firmengründung, Lizenzierung und vollständiger Nachnahmebetrieb (COD) – mit grenzüberschreitender Zahlungsabwicklung in jeder Währung, einschließlich moderner digitaler Assets, in allen Märkten, in denen wir tätig sind.",
+  "services.c5t":"Individuelles CRM & KI-Automatisierung","services.c5d":"Unser internes Entwicklungsteam baut individuelle CRM-Systeme von Grund auf und automatisiert Abläufe durchgängig mit KI.",
   "services.c6t":"Maßgeschneiderte Betriebsmodelle","services.c6d":"Keine Vorlagen. Jeder Kunde erhält ein Betriebsmodell, das um sein Produkt, seine Märkte und seine Margen herum konzipiert ist.",
-  "coverage.eyebrow":"Globale Reichweite","coverage.title":"Ein Betriebsstandard. Neunzehn Länder.","coverage.sub":"Von Westeuropa bis Lateinamerika, von Westafrika bis Südostasien — überall, wo wir tätig sind, gilt derselbe Standard für Lagerung, Zustellung und Compliance.",
-  "coverage.chip1":"19 Länder","coverage.chip2":"4 Kontinente","coverage.chip3":"Zustellstandard 24–48h",
+  "coverage.eyebrow":"Globale Reichweite","coverage.title":"Ein Betriebsstandard. Neunzehn Länder.","coverage.sub":"Von Westeuropa bis Lateinamerika, von Westafrika bis Südostasien – derselbe Standard für Lagerung, Zustellung und Compliance in jedem Markt, in dem wir tätig sind. Sie brauchen einen Markt, den wir noch nicht abdecken? Wir erschließen ihn.",
+  "coverage.chip1":"19 Länder","coverage.chip2":"4 Kontinente","coverage.chip3":"Zustellung in 24⁠–⁠48 h",
   "coverage.regionEurope":"Europa","coverage.regionAmericas":"Amerika","coverage.regionAfrica":"Afrika","coverage.regionAsia":"Asien-Pazifik",
-  "case.eyebrow":"Bewährt im großen Maßstab","case.title":"Sieben Jahre. Ein Partner. 250 Mio. € verwalteter Umsatz.","case.sub":"Seit 2019 führen wir die gesamte Lieferkette — Beschaffung, Lagerung, Zustellung, Finanzen und Technologie — für eine führende Marke im Bereich Nahrungsergänzungsmittel und Kosmetik.",
-  "case.stat1":"Verwalteter Jahresumsatz","case.stat2":"Erzielter Nettogewinn pro Monat","case.stat3":"Jahre, eine Partnerschaft","case.stat4":"Belieferte Märkte",
-  "case.b1":"Vollständige Nachnahme-Infrastruktur (COD) in jedem Markt","case.b2":"Individuelles CRM und KI-Automatisierung senken die Betriebskosten","case.b3":"Eigenes Lagernetzwerk mit Zustellung in 24–48 Stunden","case.b4":"Fortlaufende Finanz- und Rechtsstrukturierung im Zuge des Unternehmenswachstums",
+  "case.eyebrow":"Bewährt im großen Maßstab","case.title":"Sieben Jahre. Ein Kunde. 250 Mio. € Jahresumsatz.","case.sub":"Seit 2019 verantworten wir die gesamte Lieferkette – Beschaffung, Lagerung, Zustellung, Finanzen und Technologie – für eine führende Marke im Bereich Nahrungsergänzungsmittel und Kosmetik.",
+  "case.stat1":"Jahresumsatz","case.stat2":"Monatlicher Nettogewinn","case.stat3":"Jahre, eine Partnerschaft","case.stat4":"Belieferte Märkte",
+  "case.b1":"Vollständige Nachnahme-Infrastruktur (COD) in jedem Markt","case.b2":"Individuelles CRM und KI-Automatisierung senken die Betriebskosten","case.b3":"Eigenes Lagernetz mit Zustellung in 24⁠–⁠48 Stunden","case.b4":"Fortlaufende Finanz- und Rechtsstrukturierung im Zuge des Unternehmenswachstums",
+  "band.title":"Ihr Produkt steht in 24⁠–⁠48 Stunden vor der Haustür Ihres Kunden.","band.sub":"19 Länder sind unser heutiger Stand, nicht unsere Grenze. Wir eröffnen Logistikzentren in jedem Land der Welt und bauen einen eigenen Kurierdienst von Grund auf, wenn kein Transportunternehmen den Standard erfüllt. Genau das haben wir in 18 Bundesstaaten Mexikos getan.","band.cta":"Termin vereinbaren",
+  "contact.note":"Keine Verkaufspräsentation. Ein 30-minütiges Gespräch – und Sie haben eine durchgerechnete Einschätzung, wie Ihre Lieferkette aussehen sollte.",
   "process.eyebrow":"Wie wir arbeiten","process.title":"Vom Audit zum Autopiloten",
   "process.s1t":"Analyse und Audit","process.s1d":"Wir erfassen Ihr Produkt, Ihre Margen und Ihre Märkte und prüfen Ihre bestehende Lieferkette hinsichtlich Kosten und Geschwindigkeit.",
-  "process.s2t":"Infrastrukturdesign","process.s2d":"Wir konzipieren die juristische Struktur, die Finanzwege, das Lagernetz und das Zustellnetzwerk für jeden Markt, den Sie erschließen.",
+  "process.s2t":"Infrastrukturdesign","process.s2d":"Wir konzipieren die Gesellschaftsstruktur, die Finanzwege, das Lagernetz und das Zustellnetz für jeden Markt, den Sie erschließen.",
   "process.s3t":"Einführung und Integration","process.s3d":"Wir implementieren das individuelle CRM und die KI-Automatisierung, binden Transportunternehmen und Zahlungsmethoden inklusive Nachnahme (COD) ein und gehen live.",
   "process.s4t":"Skalierung und Optimierung","process.s4d":"Wir verhandeln Tarife kontinuierlich neu, erweitern die Abdeckung und passen die Automatisierung an, während Ihre Volumina wachsen.",
-  "why.eyebrow":"Warum Delivery Consult","why.title":"Aufgebaut von Praktikern, nicht von Beratern",
-  "why.c1t":"Jahrelange praktische Erfahrung","why.c1d":"Wir haben genau dieses Modell selbst umgesetzt — und nicht nur von außen beraten.",
+  "why.eyebrow":"Warum Delivery Consult","why.title":"Wir sind Praktiker, keine Berater",
+  "why.c1t":"Jahrelange praktische Erfahrung","why.c1d":"Wir haben genau dieses Modell selbst umgesetzt – und nicht nur von außen beraten.",
   "why.c2t":"Internes Technik-Team","why.c2d":"Individuelles CRM und KI-Automatisierung werden intern entwickelt und gepflegt, nicht ausgelagert.",
-  "why.c3t":"Durchgängige Supply Chain","why.c3d":"Beschaffung, Lagerung, Zustellung, Finanzen und Recht — ein verantwortlicher Partner von Anfang bis Ende.",
-  "why.c4t":"Bewährt im echten Maßstab","why.c4d":"250 Mio. € verwalteter Jahresumsatz für einen einzigen Kunden über sieben aufeinanderfolgende Jahre.",
-  "contact.eyebrow":"Lassen Sie uns sprechen","contact.title":"Erzählen Sie uns von Ihrer Lieferkette","contact.sub":"Ob ein einzelner Markt oder alle neunzehn — wir gestalten die Infrastruktur passend zu Ihrem Produkt.",
+  "why.c3t":"Durchgängige Supply Chain","why.c3d":"Beschaffung, Lagerung, Zustellung, Finanzen und Recht – ein verantwortlicher Partner von Anfang bis Ende.",
+  "why.c4t":"Im großen Maßstab bewährt","why.c4d":"250 Mio. € Jahresumsatz – sieben Jahre in Folge mit demselben Kunden.",
+  "contact.eyebrow":"Lassen Sie uns sprechen","contact.title":"Erzählen Sie uns von Ihrer Lieferkette","contact.sub":"Ob ein einzelner Markt, alle neunzehn oder ein Land, das wir noch nicht erschlossen haben – wir bauen die Infrastruktur um Ihr Produkt herum.",
   "contact.emailLbl":"E-Mail","contact.phoneLbl":"Telefon","contact.entityLbl":"Eingetragenes Unternehmen","contact.companyNo":"Handelsregisternummer",
   "contact.name":"Name","contact.company":"Unternehmen","contact.email":"E-Mail","contact.message":"Nachricht","contact.placeholder":"Erzählen Sie uns von Ihrem Produkt, Ihren Märkten und Volumina...",
-  "contact.submit":"Nachricht senden","contact.success":"Vielen Dank — wir melden uns innerhalb eines Werktags.","contact.error":"Etwas ist schiefgelaufen — schreiben Sie uns bitte direkt an business@delivery-consult.com.",
-  "footer.tagline":"Globale Supply-Chain-Infrastruktur: Beschaffung, Lagerung und Zustellung in 24–48 Stunden in 19 Ländern.",
+  "contact.submit":"Nachricht senden","contact.success":"Vielen Dank – wir melden uns innerhalb eines Werktags.","contact.error":"Etwas ist schiefgelaufen – schreiben Sie uns bitte direkt an business@delivery-consult.com.",
+  "footer.tagline":"Globale Supply-Chain-Infrastruktur: Beschaffung, Lagerung und Zustellung in 24⁠–⁠48 Stunden in 19 Ländern.",
   "footer.navTitle":"Navigation","footer.contactTitle":"Kontakt","footer.legal":"© 2026 VITAWAVE LTD. Alle Rechte vorbehalten."
 },
 it:{
-  "nav.services":"Servizi","nav.coverage":"Copertura","nav.case":"Caso di studio","nav.process":"Processo","nav.why":"Perché noi","nav.contact":"Contatti","nav.cta":"Prenota una consulenza",
-  "mega.s1t":"Approvvigionamento e sourcing","mega.s1d":"Rete globale di fornitori, negoziata per conto vostro",
-  "mega.s2t":"Magazzino e fulfillment","mega.s2d":"Centri di fulfillment in qualsiasi paese, su misura",
-  "mega.s3t":"Consegna espressa","mega.s3d":"Consegna in 24–48h in 19 paesi",
-  "mega.s4t":"Finanza e legale","mega.s4d":"Costituzione societaria, COD, regolamento transfrontaliero",
-  "mega.s5t":"CRM su misura e IA","mega.s5d":"Sviluppo interno, su misura per voi",
-  "mega.s6t":"Modelli su misura","mega.s6d":"Un modello operativo, non un modello standard",
+  "nav.services":"Servizi","nav.coverage":"Copertura","nav.case":"Caso di studio","nav.process":"Processo","nav.why":"Perché noi","nav.contact":"Contatti","nav.cta":"Prenotate una consulenza",
   "hero.eyebrow":"Partner globale della supply chain dal 2019",
   "hero.title":"Costruiamo supply chain che si muovono alla <span class=\"grad-text\">velocità della domanda.</span>",
-  "hero.sub":"Approvvigionamento, magazzino e consegna espressa in 24–48h in 19 paesi, sostenuti da un'infrastruttura finanziaria, legale e di IA pensata per crescere su larga scala.",
-  "hero.cta1":"Prenota una consulenza","hero.cta2":"Scopri la nostra copertura","hero.badge":"Standard di consegna espressa",
-  "hero.stat1":"Paesi coperti","hero.stat2":"Consegna espressa","hero.stat3":"Fatturato clienti gestito","hero.stat4":"Anni di attività",
-  "services.eyebrow":"Cosa facciamo","services.title":"Infrastruttura di supply chain end-to-end, sviluppata internamente","services.sub":"Sei competenze. Un solo team responsabile, dall'inizio alla fine.",
-  "services.c1t":"Approvvigionamento e sourcing","services.c1d":"Selezioniamo, verifichiamo e negoziamo con i produttori per vostro conto, costruendo linee di approvvigionamento solide su larga scala, non solo sulla carta.",
-  "services.c2t":"Magazzino e fulfillment","services.c2d":"Attiviamo centri di fulfillment e operazioni di magazzino in qualsiasi paese del mondo: picking, imballaggio e spedizione secondo le vostre esigenze specifiche.",
-  "services.c3t":"Rete di consegna espressa","services.c3d":"Sette anni di rapporti con i corrieri ci permettono di negoziare le tariffe di consegna espressa più competitive del mercato, con consegna garantita in 24–48h in 19 paesi.",
-  "services.c4t":"Infrastruttura finanziaria e legale","services.c4d":"Costituzione societaria, licenze e gestione completa del contrassegno (COD), con regolamento transfrontaliero in qualsiasi valuta, comprese le moderne valute digitali, ovunque nel mondo.",
-  "services.c5t":"CRM su misura e automazione IA","services.c5d":"Il nostro team interno di ingegneria sviluppa sistemi CRM su misura da zero e automatizza le operazioni end-to-end con l'IA.",
-  "services.c6t":"Modelli operativi su misura","services.c6d":"Nessun modello standard. Ogni cliente riceve un modello operativo su misura per il proprio prodotto, i propri mercati e i propri margini.",
-  "coverage.eyebrow":"Presenza globale","coverage.title":"Un unico standard operativo. Diciannove paesi.","coverage.sub":"Dall'Europa occidentale all'America Latina, dall'Africa occidentale al Sud-est asiatico: lo stesso standard di magazzino, consegna e conformità ovunque operiamo.",
-  "coverage.chip1":"19 paesi","coverage.chip2":"4 continenti","coverage.chip3":"Standard di consegna 24–48h",
+  "hero.sub":"Approvvigionamento, magazzino e consegna espressa in 24⁠–⁠48h in 19 paesi, sostenuti da un’infrastruttura finanziaria, legale e di IA pensata per crescere su larga scala.",
+  "hero.cta1":"Prenotate una consulenza","hero.cta2":"Scoprite la nostra copertura","hero.badge":"Standard di consegna espressa",
+  "hero.stat1":"Paesi coperti","hero.stat2":"Consegna espressa","hero.stat3":"Fatturato annuo","hero.stat4":"Anni di attività",
+  "services.eyebrow":"Cosa facciamo","services.title":"Infrastruttura di supply chain end-to-end, sviluppata internamente","services.sub":"Sei competenze. Un solo team responsabile, dall’inizio alla fine.",
+  "services.c1t":"Approvvigionamento e sourcing","services.c1d":"Individuiamo i produttori, li verifichiamo e negoziamo con loro per vostro conto, costruendo linee di approvvigionamento solide su larga scala, non solo sulla carta.",
+  "services.c2t":"Magazzino e logistica","services.c2d":"Apriamo centri logistici e avviamo le operazioni di magazzino in qualsiasi paese del mondo, non solo nei 19 mercati che già copriamo. Prelievo, imballaggio e spedizione vengono configurati esattamente secondo le vostre specifiche.",
+  "services.c3t":"Rete di consegna espressa","services.c3d":"Sette anni di rapporti con i vettori ci permettono di negoziare le tariffe più competitive del mercato sulle spedizioni espresse. Dove nessun vettore raggiunge lo standard, costruiamo da zero una nostra rete di corrieri — come in 18 stati del Messico — e in ogni caso manteniamo la consegna in 24⁠–⁠48 ore.",
+  "services.c4t":"Infrastruttura finanziaria e legale","services.c4d":"Costituzione societaria, licenze e gestione completa del contrassegno (COD), con regolamento transfrontaliero in qualsiasi valuta, compresi i moderni asset digitali, in tutti i mercati in cui operiamo.",
+  "services.c5t":"CRM su misura e automazione IA","services.c5d":"Il nostro team tecnico interno sviluppa da zero sistemi CRM su misura e automatizza le operazioni end-to-end con l’IA.",
+  "services.c6t":"Modelli operativi su misura","services.c6d":"Nessuna soluzione preconfezionata. Ogni cliente riceve un modello operativo su misura per il proprio prodotto, i propri mercati e i propri margini.",
+  "coverage.eyebrow":"Presenza globale","coverage.title":"Un unico standard operativo. Diciannove paesi.","coverage.sub":"Dall’Europa occidentale all’America Latina, dall’Africa occidentale al Sud-est asiatico: lo stesso standard di magazzino, consegna e conformità in ogni mercato in cui operiamo. Vi serve un mercato che non copriamo ancora? Lo apriamo.",
+  "coverage.chip1":"19 paesi","coverage.chip2":"4 continenti","coverage.chip3":"Consegna in 24⁠–⁠48h",
   "coverage.regionEurope":"Europa","coverage.regionAmericas":"Americhe","coverage.regionAfrica":"Africa","coverage.regionAsia":"Asia-Pacifico",
-  "case.eyebrow":"Testato su larga scala","case.title":"Sette anni. Un solo partner. 250 milioni di € di fatturato gestito.","case.sub":"Dal 2019 gestiamo l'intera supply chain — sourcing, magazzino, consegna, finanza e tecnologia — per un marchio leader nel settore degli integratori alimentari e della cosmetica.",
-  "case.stat1":"Fatturato annuo gestito","case.stat2":"Utile netto generato / mese","case.stat3":"Anni, una sola partnership","case.stat4":"Mercati serviti",
-  "case.b1":"Infrastruttura completa per il contrassegno (COD) in ogni mercato","case.b2":"CRM su misura e automazione IA che riducono i costi operativi","case.b3":"Rete di magazzini dedicata con consegna in 24–48h","case.b4":"Strutturazione finanziaria e legale continua durante la crescita dell'azienda",
-  "process.eyebrow":"Come lavoriamo","process.title":"Dall'audit al pilota automatico",
-  "process.s1t":"Analisi e audit","process.s1d":"Analizziamo il vostro prodotto, i margini e i mercati, e verifichiamo la vostra attuale supply chain in termini di costi e velocità.",
-  "process.s2t":"Progettazione dell'infrastruttura","process.s2d":"Progettiamo l'entità legale, i canali finanziari, la rete di magazzini e la rete di consegna per ogni mercato in cui entrate.",
-  "process.s3t":"Lancio e integrazione","process.s3d":"Implementiamo il CRM su misura e l'automazione IA, integriamo corrieri e metodi di pagamento incluso il COD, e avviamo l'operatività.",
-  "process.s4t":"Scalabilità e ottimizzazione","process.s4d":"Rinegoziamo costantemente le tariffe, ampliamo la copertura e ottimizziamo l'automazione al crescere dei vostri volumi.",
-  "why.eyebrow":"Perché Delivery Consult","why.title":"Costruito da operatori, non da consulenti",
-  "why.c1t":"Anni di esperienza diretta","why.c1d":"Abbiamo applicato noi stessi esattamente questo modello, non ci siamo limitati a consigliarlo dall'esterno.",
+  "case.eyebrow":"Testato su larga scala","case.title":"Sette anni. Un solo cliente. 250 milioni di euro di fatturato annuo.","case.sub":"Dal 2019 gestiamo l’intera supply chain — approvvigionamento, magazzino, consegna, finanza e tecnologia — per un marchio leader nel settore degli integratori alimentari e della cosmetica.",
+  "case.stat1":"Fatturato annuo","case.stat2":"Utile netto mensile","case.stat3":"Anni, una sola partnership","case.stat4":"Mercati serviti",
+  "case.b1":"Infrastruttura completa per il contrassegno (COD) in ogni mercato","case.b2":"CRM su misura e automazione IA che riducono i costi operativi","case.b3":"Rete di magazzini dedicata con consegna in 24⁠–⁠48h","case.b4":"Strutturazione finanziaria e legale continua durante la crescita dell’azienda",
+  "band.title":"Il vostro prodotto alla porta del cliente in 24⁠–⁠48 ore.","band.sub":"Diciannove paesi sono il nostro presente, non il nostro limite. Apriamo centri logistici in qualsiasi paese del mondo e costruiamo da zero una rete di corrieri quando nessun vettore è all’altezza. È esattamente ciò che abbiamo fatto in 18 stati del Messico.","band.cta":"Prenotate una consulenza",
+  "contact.note":"Nessuna presentazione commerciale. Trenta minuti di confronto e ne uscite con una stima concreta di come dovrebbe essere la vostra supply chain.",
+  "process.eyebrow":"Come lavoriamo","process.title":"Dall’audit al pilota automatico",
+  "process.s1t":"Analisi e audit","process.s1d":"Analizziamo il vostro prodotto, i margini e i mercati e valutiamo la vostra attuale supply chain su costi e velocità.",
+  "process.s2t":"Progettazione dell’infrastruttura","process.s2d":"Progettiamo la struttura societaria, i circuiti di pagamento, la rete di magazzini e la rete di consegna per ogni mercato in cui entrate.",
+  "process.s3t":"Lancio e integrazione","process.s3d":"Implementiamo il CRM su misura e l’automazione IA, integriamo corrieri e metodi di pagamento (compreso il COD) e avviamo l’operatività.",
+  "process.s4t":"Scalabilità e ottimizzazione","process.s4d":"Rinegoziamo costantemente le tariffe, ampliamo la copertura e ottimizziamo l’automazione al crescere dei vostri volumi.",
+  "why.eyebrow":"Perché Delivery Consult","why.title":"Siamo operatori, non consulenti",
+  "why.c1t":"Anni di esperienza diretta","why.c1d":"Abbiamo applicato noi stessi esattamente questo modello, non ci siamo limitati a consigliarlo dall’esterno.",
   "why.c2t":"Team tecnico interno","why.c2d":"CRM su misura e automazione IA sviluppati e mantenuti internamente, non esternalizzati.",
-  "why.c3t":"Supply chain a ciclo completo","why.c3d":"Approvvigionamento, magazzino, consegna, finanza e legale: un unico partner responsabile end-to-end.",
-  "why.c4t":"Testato su scala reale","why.c4d":"250 milioni di € di fatturato annuo gestito per un singolo cliente per sette anni consecutivi.",
-  "contact.eyebrow":"Parliamone","contact.title":"Raccontateci la vostra supply chain","contact.sub":"Che abbiate bisogno di un solo mercato o di tutti e diciannove, progetteremo l'infrastruttura su misura per il vostro prodotto.",
+  "why.c3t":"Supply chain a ciclo completo","why.c3d":"Approvvigionamento, magazzino, consegna, finanza e ambito legale: un unico partner responsabile end-to-end.",
+  "why.c4t":"Testato su larga scala","why.c4d":"250 milioni di euro di fatturato annuo, sette anni consecutivi con lo stesso cliente.",
+  "contact.eyebrow":"Parliamone","contact.title":"Raccontateci la vostra supply chain","contact.sub":"Che vi serva un solo mercato, tutti e diciannove o un paese che non abbiamo ancora aperto: progettiamo l’infrastruttura attorno al vostro prodotto.",
   "contact.emailLbl":"Email","contact.phoneLbl":"Telefono","contact.entityLbl":"Società registrata","contact.companyNo":"Numero di registrazione",
   "contact.name":"Nome","contact.company":"Azienda","contact.email":"Email","contact.message":"Messaggio","contact.placeholder":"Raccontateci il vostro prodotto, i mercati e i volumi...",
-  "contact.submit":"Invia messaggio","contact.success":"Grazie — vi risponderemo entro un giorno lavorativo.","contact.error":"Qualcosa è andato storto — scriveteci direttamente a business@delivery-consult.com.",
-  "footer.tagline":"Infrastruttura globale di supply chain: approvvigionamento, magazzino e consegna in 24–48h in 19 paesi.",
-  "footer.navTitle":"Naviga","footer.contactTitle":"Contatti","footer.legal":"© 2026 VITAWAVE LTD. Tutti i diritti riservati."
+  "contact.submit":"Inviate il messaggio","contact.success":"Grazie — vi risponderemo entro un giorno lavorativo.","contact.error":"Qualcosa è andato storto — scriveteci direttamente a business@delivery-consult.com.",
+  "footer.tagline":"Infrastruttura globale di supply chain: approvvigionamento, magazzino e consegna in 24⁠–⁠48h in 19 paesi.",
+  "footer.navTitle":"Navigazione","footer.contactTitle":"Contatti","footer.legal":"© 2026 VITAWAVE LTD. Tutti i diritti riservati."
 },
 pt:{
-  "nav.services":"Serviços","nav.coverage":"Cobertura","nav.case":"Caso de estudo","nav.process":"Processo","nav.why":"Porquê nós","nav.contact":"Contactos","nav.cta":"Marcar reunião",
-  "mega.s1t":"Compras e sourcing","mega.s1d":"Rede global de fornecedores, negociada em seu nome",
-  "mega.s2t":"Armazenagem e fulfillment","mega.s2d":"Centros de fulfillment em qualquer país, à sua medida",
-  "mega.s3t":"Entrega expressa","mega.s3d":"Entrega em 24–48h em 19 países",
-  "mega.s4t":"Financeiro e jurídico","mega.s4d":"Constituição de empresas, contra-reembolso (COD), liquidação transfronteiriça",
-  "mega.s5t":"CRM à medida e IA","mega.s5d":"Engenharia interna, construída à sua volta",
-  "mega.s6t":"Modelos à medida","mega.s6d":"Um modelo operacional, não um modelo padrão",
-  "hero.eyebrow":"Parceiro global de supply chain desde 2019",
+  "nav.services":"Serviços","nav.coverage":"Cobertura","nav.case":"Caso de estudo","nav.process":"Processo","nav.why":"Porquê nós","nav.contact":"Contactos","nav.cta":"Agendar reunião",
+  "hero.eyebrow":"Parceiro global de cadeias de abastecimento desde 2019",
   "hero.title":"Construímos cadeias de abastecimento que se movem à <span class=\"grad-text\">velocidade da procura.</span>",
-  "hero.sub":"Compras, armazenagem e entrega expressa em 24–48h em 19 países, apoiadas por uma infraestrutura financeira, jurídica e de IA construída para crescer.",
-  "hero.cta1":"Marcar uma consulta","hero.cta2":"Ver a nossa cobertura","hero.badge":"Padrão de entrega expressa",
-  "hero.stat1":"Países cobertos","hero.stat2":"Entrega expressa","hero.stat3":"Receita de clientes gerida","hero.stat4":"Anos de atividade",
-  "services.eyebrow":"O que fazemos","services.title":"Infraestrutura de supply chain de ponta a ponta, desenvolvida internamente","services.sub":"Seis competências. Uma única equipa responsável, do início ao fim.",
-  "services.c1t":"Compras e sourcing","services.c1d":"Procuramos, avaliamos e negociamos com fabricantes em seu nome, construindo linhas de abastecimento que resistem à escala, não apenas no papel.",
-  "services.c2t":"Armazenagem e fulfillment","services.c2d":"Implementamos centros de fulfillment e operações de armazém em qualquer país do mundo: picking, embalagem e expedição de acordo com as suas especificações exatas.",
-  "services.c3t":"Rede de entrega expressa","services.c3d":"Sete anos de relações com transportadoras permitem-nos negociar as tarifas expressas mais competitivas do mercado, com entrega garantida em 24–48h em 19 países.",
-  "services.c4t":"Infraestrutura financeira e jurídica","services.c4d":"Constituição de empresas, licenciamento e gestão completa de contra-reembolso (COD), com liquidação transfronteiriça em qualquer moeda, incluindo ativos digitais modernos, disponível em qualquer mercado onde operamos.",
+  "hero.sub":"Compras, armazenagem e entrega expressa em 24⁠–⁠48h, em 19 países, apoiadas por uma infraestrutura financeira, jurídica e de IA concebida para escalar.",
+  "hero.cta1":"Agendar reunião","hero.cta2":"Ver a nossa cobertura","hero.badge":"Padrão de entrega expressa",
+  "hero.stat1":"Países cobertos","hero.stat2":"Entrega expressa","hero.stat3":"Faturação anual","hero.stat4":"Anos de atividade",
+  "services.eyebrow":"O que fazemos","services.title":"Infraestrutura de cadeia de abastecimento de ponta a ponta, desenvolvida internamente","services.sub":"Seis competências. Uma única equipa responsável, do início ao fim.",
+  "services.c1t":"Compras e sourcing","services.c1d":"Procuramos fabricantes, avaliamo-los e negociamos com eles em seu nome, para construir linhas de abastecimento que aguentam a escala real — e não apenas no papel.",
+  "services.c2t":"Armazenagem e logística","services.c2d":"Abrimos centros logísticos e montamos operações de armazém em qualquer país do mundo, e não apenas nos 19 mercados que já cobrimos. A recolha, a embalagem e a expedição funcionam exatamente segundo as suas especificações.",
+  "services.c3t":"Rede de entrega expressa","services.c3d":"Sete anos de relações com transportadoras permitem-nos negociar as tarifas expresso mais competitivas do mercado. Quando nenhuma transportadora cumpre o padrão, construímos o nosso próprio serviço de estafetas de raiz — como em 18 estados do México — e o prazo de 24⁠–⁠48h mantém-se de qualquer forma.",
+  "services.c4t":"Infraestrutura financeira e jurídica","services.c4d":"Constituição de empresas, licenciamento e gestão completa de contrarreembolso (COD), com liquidação transfronteiriça em qualquer moeda, incluindo ativos digitais modernos, disponível em qualquer mercado onde operamos.",
   "services.c5t":"CRM à medida e automação com IA","services.c5d":"A nossa equipa de engenharia interna desenvolve sistemas de CRM à medida, de raiz, e automatiza as operações de ponta a ponta com IA.",
-  "services.c6t":"Modelos operacionais à medida","services.c6d":"Sem modelos padrão. Cada cliente recebe um modelo operacional concebido à volta do seu produto, dos seus mercados e das suas margens.",
-  "coverage.eyebrow":"Alcance global","coverage.title":"Um único padrão operacional. Dezanove países.","coverage.sub":"Da Europa Ocidental à América Latina, da África Ocidental ao Sudeste Asiático — o mesmo padrão de armazenagem, entrega e conformidade em todos os mercados onde operamos.",
-  "coverage.chip1":"19 países","coverage.chip2":"4 continentes","coverage.chip3":"Padrão de entrega 24–48h",
+  "services.c6t":"Modelos operacionais à medida","services.c6d":"Sem modelos padrão. Cada cliente recebe um modelo operacional concebido em função do seu produto, dos seus mercados e das suas margens.",
+  "coverage.eyebrow":"Alcance global","coverage.title":"Um único padrão operacional. Dezanove países.","coverage.sub":"Da Europa Ocidental à América Latina, da África Ocidental ao Sudeste Asiático: o mesmo padrão de armazenagem, entrega e conformidade em todos os mercados onde operamos. Precisa de um mercado que ainda não cobrimos? Abrimo-lo.",
+  "coverage.chip1":"19 países","coverage.chip2":"4 continentes","coverage.chip3":"Entrega em 24⁠–⁠48h",
   "coverage.regionEurope":"Europa","coverage.regionAmericas":"Américas","coverage.regionAfrica":"África","coverage.regionAsia":"Ásia-Pacífico",
-  "case.eyebrow":"Comprovado à escala","case.title":"Sete anos. Um só parceiro. 250 M€ de receita gerida.","case.sub":"Desde 2019 gerimos toda a supply chain — compras, armazenagem, entrega, finanças e tecnologia — para uma marca líder de suplementos alimentares e cosmética.",
-  "case.stat1":"Receita anual gerida","case.stat2":"Lucro líquido gerado / mês","case.stat3":"Anos, uma só parceria","case.stat4":"Mercados servidos",
-  "case.b1":"Infraestrutura completa de contra-reembolso (COD) em cada mercado","case.b2":"CRM à medida e automação com IA que reduziram os custos operacionais","case.b3":"Rede de armazéns dedicada com entrega em 24–48h","case.b4":"Estruturação financeira e jurídica contínua à medida que o negócio crescia",
+  "case.eyebrow":"Comprovado à escala","case.title":"Sete anos. Um só cliente. 250 M€ de faturação anual.","case.sub":"Desde 2019 que gerimos toda a cadeia de abastecimento — compras, armazenagem, entrega, finanças e tecnologia — para uma marca líder de suplementos alimentares e cosmética.",
+  "case.stat1":"Faturação anual","case.stat2":"Lucro líquido mensal","case.stat3":"Anos, uma só parceria","case.stat4":"Mercados abrangidos",
+  "case.b1":"Infraestrutura completa de contrarreembolso (COD) em cada mercado","case.b2":"CRM à medida e automação com IA que reduziram os custos operacionais","case.b3":"Rede de armazéns dedicada com entrega em 24⁠–⁠48h","case.b4":"Estruturação financeira e jurídica contínua à medida que o negócio crescia",
+  "band.title":"O seu produto à porta do cliente em 24⁠–⁠48 horas.","band.sub":"Hoje operamos em dezanove países. Não é aí que paramos. Abrimos centros logísticos em qualquer país do mundo e construímos uma rede de estafetas de raiz quando nenhuma transportadora está à altura. Foi exatamente isso que fizemos em 18 estados do México.","band.cta":"Agendar reunião",
+  "contact.note":"Sem apresentações comerciais. Trinta minutos de conversa e sai com uma ideia concreta e orçamentada de como deve ser a sua cadeia de abastecimento.",
   "process.eyebrow":"Como trabalhamos","process.title":"Da auditoria ao piloto automático",
-  "process.s1t":"Diagnóstico e auditoria","process.s1d":"Mapeamos o seu produto, margens e mercados, e auditamos a sua cadeia de abastecimento atual em termos de custo e velocidade.",
-  "process.s2t":"Conceção da infraestrutura","process.s2d":"Concebemos a entidade jurídica, os circuitos financeiros, a rede de armazéns e a rede de entrega para cada mercado que abordamos.",
-  "process.s3t":"Lançamento e integração","process.s3d":"Implementamos o CRM à medida e a automação com IA, integramos transportadoras e métodos de pagamento incluindo o COD, e colocamos a operação em funcionamento.",
+  "process.s1t":"Diagnóstico e auditoria","process.s1d":"Mapeamos o seu produto, as suas margens e os seus mercados e auditamos a cadeia de abastecimento atual quanto a custo e velocidade.",
+  "process.s2t":"Conceção da infraestrutura","process.s2d":"Concebemos a entidade jurídica, os circuitos financeiros, a rede de armazéns e a rede de entrega para cada mercado em que entramos.",
+  "process.s3t":"Lançamento e integração","process.s3d":"Implementamos o CRM à medida e a automação com IA, integramos transportadoras e métodos de pagamento, incluindo o COD, e colocamos a operação em funcionamento.",
   "process.s4t":"Escala e otimização","process.s4d":"Renegociamos continuamente as tarifas, alargamos a cobertura e afinamos a automação à medida que os seus volumes crescem.",
-  "why.eyebrow":"Porquê a Delivery Consult","why.title":"Construído por operadores, não por consultores",
-  "why.c1t":"Anos de experiência prática","why.c1d":"Executámos nós próprios exatamente este modelo — não nos limitámos a aconselhá-lo de fora.",
+  "why.eyebrow":"Porquê a Delivery Consult","why.title":"Somos operadores, não consultores",
+  "why.c1t":"Anos de experiência prática","why.c1d":"Executámos nós próprios exatamente este modelo — não nos limitámos a dar conselhos a partir de fora.",
   "why.c2t":"Equipa técnica interna","why.c2d":"CRM à medida e automação com IA desenvolvidos e mantidos internamente, sem recurso a subcontratação.",
-  "why.c3t":"Supply chain integral","why.c3d":"Compras, armazenagem, entrega, finanças e jurídico — um único parceiro responsável de ponta a ponta.",
-  "why.c4t":"Comprovado à escala real","why.c4d":"250 M€ de receita anual gerida para um único cliente ao longo de sete anos consecutivos.",
-  "contact.eyebrow":"Vamos falar","contact.title":"Fale-nos da sua cadeia de abastecimento","contact.sub":"Quer precise de um único mercado ou dos dezanove, desenhamos a infraestrutura à volta do seu produto.",
-  "contact.emailLbl":"Email","contact.phoneLbl":"Telefone","contact.entityLbl":"Entidade registada","contact.companyNo":"Número de empresa",
-  "contact.name":"Nome","contact.company":"Empresa","contact.email":"Email","contact.message":"Mensagem","contact.placeholder":"Fale-nos do seu produto, mercados e volumes...",
-  "contact.submit":"Enviar mensagem","contact.success":"Obrigado — entraremos em contacto dentro de um dia útil.","contact.error":"Algo correu mal — escreva-nos diretamente para business@delivery-consult.com.",
-  "footer.tagline":"Infraestrutura global de supply chain: compras, armazenagem e entrega em 24–48h em 19 países.",
+  "why.c3t":"Cadeia de abastecimento integral","why.c3d":"Compras, armazenagem, entrega, finanças e área jurídica — um único parceiro responsável de ponta a ponta.",
+  "why.c4t":"Comprovado à escala real","why.c4d":"250 M€ de faturação anual, sete anos consecutivos com o mesmo cliente.",
+  "contact.eyebrow":"Vamos falar","contact.title":"Fale-nos da sua cadeia de abastecimento","contact.sub":"Quer precise de um só mercado, quer dos dezanove, quer de um país que ainda não abrimos, desenhamos a infraestrutura à medida do seu produto.",
+  "contact.emailLbl":"Email","contact.phoneLbl":"Telefone","contact.entityLbl":"Entidade registada","contact.companyNo":"Número da empresa",
+  "contact.name":"Nome","contact.company":"Empresa","contact.email":"Email","contact.message":"Mensagem","contact.placeholder":"Fale-nos do seu produto, dos mercados e volumes...",
+  "contact.submit":"Enviar mensagem","contact.success":"Obrigado — entraremos em contacto no prazo de um dia útil.","contact.error":"Algo correu mal — escreva-nos diretamente para business@delivery-consult.com.",
+  "footer.tagline":"Infraestrutura global de cadeia de abastecimento: compras, armazenagem e entrega em 24⁠–⁠48h em 19 países.",
   "footer.navTitle":"Navegação","footer.contactTitle":"Contactos","footer.legal":"© 2026 VITAWAVE LTD. Todos os direitos reservados."
 },
 pl:{
-  "nav.services":"Usługi","nav.coverage":"Zasięg","nav.case":"Studium przypadku","nav.process":"Proces","nav.why":"Dlaczego my","nav.contact":"Kontakt","nav.cta":"Umów konsultację",
-  "mega.s1t":"Zakupy i sourcing","mega.s1d":"Globalna sieć dostawców negocjowana w Państwa imieniu",
-  "mega.s2t":"Magazynowanie i fulfillment","mega.s2d":"Centra fulfillmentu w dowolnym kraju, dopasowane do Państwa wymagań",
-  "mega.s3t":"Dostawa ekspresowa","mega.s3d":"Dostawa w 24–48h w 19 krajach",
-  "mega.s4t":"Finanse i prawo","mega.s4d":"Rejestracja spółek, płatności za pobraniem, rozliczenia międzynarodowe",
-  "mega.s5t":"CRM na zamówienie i AI","mega.s5d":"Własny zespół inżynierski, zbudowany pod Państwa potrzeby",
-  "mega.s6t":"Modele szyte na miarę","mega.s6d":"Model operacyjny, a nie gotowy szablon",
+  "nav.services":"Usługi","nav.coverage":"Zasięg","nav.case":"Studium przypadku","nav.process":"Proces","nav.why":"Dlaczego my","nav.contact":"Kontakt","nav.cta":"Umówmy konsultację",
   "hero.eyebrow":"Globalny partner w łańcuchu dostaw od 2019 roku",
   "hero.title":"Budujemy łańcuchy dostaw, które nadążają za <span class=\"grad-text\">tempem popytu.</span>",
-  "hero.sub":"Zakupy, magazynowanie i ekspresowa dostawa w 24–48h w 19 krajach — wsparte infrastrukturą finansową, prawną i AI zaprojektowaną do skalowania.",
-  "hero.cta1":"Umów konsultację","hero.cta2":"Zobacz nasz zasięg","hero.badge":"Standard dostawy ekspresowej",
-  "hero.stat1":"Krajów objętych zasięgiem","hero.stat2":"Dostawa ekspresowa","hero.stat3":"Obrót klienta pod zarządzaniem","hero.stat4":"Lat działalności",
-  "services.eyebrow":"Czym się zajmujemy","services.title":"Kompleksowa infrastruktura łańcucha dostaw, zbudowana we własnym zakresie","services.sub":"Sześć kompetencji. Jeden zespół odpowiedzialny od początku do końca.",
-  "services.c1t":"Zakupy i sourcing","services.c1d":"Wyszukujemy, weryfikujemy i negocjujemy z producentami w Państwa imieniu, budując łańcuchy dostaw, które sprawdzają się w dużej skali, a nie tylko na papierze.",
-  "services.c2t":"Magazynowanie i fulfillment","services.c2d":"Uruchamiamy centra fulfillmentu i operacje magazynowe w dowolnym kraju na świecie: kompletację, pakowanie i wysyłkę dokładnie według Państwa specyfikacji.",
-  "services.c3t":"Sieć dostaw ekspresowych","services.c3d":"Siedem lat relacji z przewoźnikami pozwala nam negocjować najkorzystniejsze stawki ekspresowe na rynku, z gwarantowaną dostawą w 24–48h w 19 krajach.",
-  "services.c4t":"Infrastruktura finansowa i prawna","services.c4d":"Rejestracja spółek, licencje i pełna obsługa płatności za pobraniem (COD), z rozliczeniami międzynarodowymi w dowolnej walucie, w tym nowoczesnymi aktywami cyfrowymi, dostępnymi w dowolnym miejscu na świecie.",
-  "services.c5t":"CRM na zamówienie i automatyzacja AI","services.c5d":"Nasz wewnętrzny zespół inżynierski tworzy systemy CRM od podstaw i automatyzuje procesy od początku do końca za pomocą AI.",
-  "services.c6t":"Modele operacyjne szyte na miarę","services.c6d":"Żadnych gotowych szablonów. Każdy klient otrzymuje model operacyjny zaprojektowany wokół swojego produktu, swoich rynków i swoich marż.",
-  "coverage.eyebrow":"Globalny zasięg","coverage.title":"Jeden standard działania. Dziewiętnaście krajów.","coverage.sub":"Od Europy Zachodniej po Amerykę Łacińską, od Afryki Zachodniej po Azję Południowo-Wschodnią — ten sam standard magazynowania, dostaw i zgodności z przepisami wszędzie tam, gdzie działamy.",
-  "coverage.chip1":"19 krajów","coverage.chip2":"4 kontynenty","coverage.chip3":"Standard dostawy 24–48h",
+  "hero.sub":"Zakupy, magazynowanie i ekspresowa dostawa w ciągu 24⁠–⁠48 godzin w 19 krajach — wsparte infrastrukturą finansową, prawną i opartą na AI, zaprojektowaną z myślą o skalowaniu.",
+  "hero.cta1":"Umówmy konsultację","hero.cta2":"Nasz zasięg","hero.badge":"Standard dostawy ekspresowej",
+  "hero.stat1":"Krajów objętych zasięgiem","hero.stat2":"Dostawa ekspresowa","hero.stat3":"Roczny obrót","hero.stat4":"Lat działalności",
+  "services.eyebrow":"Czym się zajmujemy","services.title":"Kompleksowa infrastruktura łańcucha dostaw, zbudowana we własnym zakresie","services.sub":"Sześć obszarów kompetencji. Jeden zespół odpowiedzialny za całość — od początku do końca.",
+  "services.c1t":"Zakupy i pozyskiwanie dostawców","services.c1d":"Wyszukujemy producentów, weryfikujemy ich i negocjujemy z nimi w Państwa imieniu, budując łańcuchy dostaw, które sprawdzają się w dużej skali, a nie tylko na papierze.",
+  "services.c2t":"Magazynowanie i fulfillment","services.c2d":"Otwieramy centra logistyczne i uruchamiamy operacje magazynowe w dowolnym kraju na świecie — nie tylko na 19 rynkach, które już obsługujemy. Przyjęcie, kompletację i wysyłkę konfigurujemy dokładnie pod Państwa produkt.",
+  "services.c3t":"Sieć dostaw ekspresowych","services.c3d":"Siedem lat współpracy z przewoźnikami pozwala nam negocjować najlepsze stawki ekspresowe na rynku. Tam, gdzie żaden przewoźnik nie spełnia naszych standardów, budujemy własną sieć kurierską od zera — tak jak w 18 stanach Meksyku — i w każdym przypadku utrzymujemy standard dostawy w ciągu 24⁠–⁠48 godzin.",
+  "services.c4t":"Infrastruktura finansowa i prawna","services.c4d":"Rejestracja spółek, licencje i pełna obsługa płatności za pobraniem (COD), z rozliczeniami międzynarodowymi w dowolnej walucie, w tym nowoczesnymi aktywami cyfrowymi, na wszystkich rynkach, na których działamy.",
+  "services.c5t":"Dedykowany CRM i automatyzacja oparta na AI","services.c5d":"Nasz zespół inżynierów buduje systemy CRM od podstaw i automatyzuje procesy na każdym etapie z wykorzystaniem AI.",
+  "services.c6t":"Modele operacyjne szyte na miarę","services.c6d":"Żadnych gotowych szablonów. Każdy klient otrzymuje model operacyjny zaprojektowany pod kątem swojego produktu, swoich rynków i swoich marż.",
+  "coverage.eyebrow":"Globalny zasięg","coverage.title":"Jeden standard działania. Dziewiętnaście krajów.","coverage.sub":"Od Europy Zachodniej po Amerykę Łacińską, od Afryki Zachodniej po Azję Południowo-Wschodnią — ten sam standard magazynowania, dostawy i zgodności z przepisami na każdym rynku, na którym działamy. Potrzebują Państwo rynku, którego jeszcze nie obsługujemy? Otworzymy go.",
+  "coverage.chip1":"19 krajów","coverage.chip2":"4 kontynenty","coverage.chip3":"Dostawa 24⁠–⁠48 h",
   "coverage.regionEurope":"Europa","coverage.regionAmericas":"Ameryki","coverage.regionAfrica":"Afryka","coverage.regionAsia":"Azja i Pacyfik",
-  "case.eyebrow":"Sprawdzone w dużej skali","case.title":"Siedem lat. Jeden partner. 250 mln € obrotu pod zarządzaniem.","case.sub":"Od 2019 roku prowadzimy cały łańcuch dostaw — zakupy, magazynowanie, dostawę, finanse i technologię — dla wiodącej marki z branży suplementów diety i kosmetyków.",
-  "case.stat1":"Roczny obrót pod zarządzaniem","case.stat2":"Wygenerowany zysk netto / miesiąc","case.stat3":"Lat, jedno partnerstwo","case.stat4":"Obsługiwanych rynków",
-  "case.b1":"Pełna infrastruktura płatności za pobraniem (COD) na każdym rynku","case.b2":"CRM na zamówienie i automatyzacja AI ograniczające koszty operacyjne","case.b3":"Dedykowana sieć magazynów z dostawą w 24–48h","case.b4":"Ciągłe wsparcie finansowe i prawne w miarę rozwoju biznesu",
+  "case.eyebrow":"Sprawdzone w dużej skali","case.title":"Siedem lat. Jeden klient. 250 mln € rocznego obrotu.","case.sub":"Od 2019 roku zarządzamy całym łańcuchem dostaw — zakupami, magazynowaniem, dostawami, finansami i technologią — dla wiodącej marki z branży suplementów diety i kosmetyków.",
+  "case.stat1":"Roczny obrót","case.stat2":"Miesięczny zysk netto klienta","case.stat3":"Lat nieprzerwanej współpracy","case.stat4":"Obsługiwanych rynków",
+  "case.b1":"Pełna infrastruktura płatności za pobraniem (COD) na każdym rynku","case.b2":"Dedykowany CRM i automatyzacja oparta na AI, ograniczające koszty operacyjne","case.b3":"Dedykowana sieć magazynów z dostawą w ciągu 24⁠–⁠48 godzin","case.b4":"Ciągłe wsparcie finansowe i prawne w miarę rozwoju biznesu",
+  "band.title":"Państwa produkt pod drzwiami klienta w ciągu 24⁠–⁠48 godzin.","band.sub":"Dziewiętnaście krajów to nasz dzisiejszy zasięg, a nie nasz limit. Otwieramy centra logistyczne w dowolnym kraju na świecie, a tam, gdzie żaden przewoźnik nie spełnia naszych standardów, budujemy od zera własną sieć kurierską. Dokładnie tak zrobiliśmy w 18 stanach Meksyku.","band.cta":"Umówmy konsultację",
+  "contact.note":"Bez prezentacji sprzedażowych. Trzydzieści minut rozmowy — i wychodzą Państwo z konkretnym, wycenionym planem tego, jak powinien wyglądać Państwa łańcuch dostaw.",
   "process.eyebrow":"Jak pracujemy","process.title":"Od audytu do autopilota",
   "process.s1t":"Diagnoza i audyt","process.s1d":"Analizujemy Państwa produkt, marże i rynki oraz audytujemy obecny łańcuch dostaw pod kątem kosztów i szybkości.",
   "process.s2t":"Projektowanie infrastruktury","process.s2d":"Projektujemy podmiot prawny, infrastrukturę finansową, sieć magazynową i sieć dostaw dla każdego rynku, na który Państwo wchodzą.",
-  "process.s3t":"Wdrożenie i integracja","process.s3d":"Wdrażamy CRM na zamówienie i automatyzację AI, integrujemy przewoźników i metody płatności, w tym COD, i uruchamiamy działalność.",
+  "process.s3t":"Wdrożenie i integracja","process.s3d":"Wdrażamy dedykowany CRM i automatyzację opartą na AI, integrujemy przewoźników i metody płatności (w tym COD) oraz uruchamiamy działalność.",
   "process.s4t":"Skalowanie i optymalizacja","process.s4d":"Stale renegocjujemy stawki, poszerzamy zasięg i dostrajamy automatyzację w miarę wzrostu Państwa wolumenów.",
-  "why.eyebrow":"Dlaczego Delivery Consult","why.title":"Zbudowane przez praktyków, a nie konsultantów",
-  "why.c1t":"Lata praktycznego doświadczenia","why.c1d":"Sami zrealizowaliśmy dokładnie ten model — a nie tylko doradzaliśmy z boku.",
-  "why.c2t":"Własny zespół techniczny","why.c2d":"CRM na zamówienie i automatyzacja AI tworzone i utrzymywane wewnętrznie, bez outsourcingu.",
+  "why.eyebrow":"Dlaczego Delivery Consult","why.title":"Jesteśmy praktykami, a nie konsultantami",
+  "why.c1t":"Lata praktycznego doświadczenia","why.c1d":"Sami zbudowaliśmy i prowadziliśmy dokładnie taki model — nie tylko doradzaliśmy z zewnątrz.",
+  "why.c2t":"Własny zespół techniczny","why.c2d":"Dedykowany CRM i automatyzacja oparta na AI, tworzone i utrzymywane wewnętrznie, bez outsourcingu.",
   "why.c3t":"Pełny łańcuch dostaw","why.c3d":"Zakupy, magazynowanie, dostawa, finanse i prawo — jeden odpowiedzialny partner od początku do końca.",
-  "why.c4t":"Sprawdzone w realnej skali","why.c4d":"250 mln € rocznego obrotu pod zarządzaniem dla jednego klienta przez siedem kolejnych lat.",
-  "contact.eyebrow":"Porozmawiajmy","contact.title":"Opowiedzą nam Państwo o swoim łańcuchu dostaw","contact.sub":"Niezależnie od tego, czy potrzebują Państwo jednego rynku, czy wszystkich dziewiętnastu, zaprojektujemy infrastrukturę dopasowaną do Państwa produktu.",
+  "why.c4t":"Sprawdzone w dużej skali","why.c4d":"250 mln € rocznego obrotu — siedem lat z rzędu z tym samym klientem.",
+  "contact.eyebrow":"Porozmawiajmy","contact.title":"Prosimy opowiedzieć nam o Państwa łańcuchu dostaw","contact.sub":"Niezależnie od tego, czy potrzebują Państwo jednego rynku, wszystkich dziewiętnastu, czy kraju, którego jeszcze nie otworzyliśmy — zaprojektujemy infrastrukturę pod Państwa produkt.",
   "contact.emailLbl":"E-mail","contact.phoneLbl":"Telefon","contact.entityLbl":"Zarejestrowany podmiot","contact.companyNo":"Numer rejestrowy spółki",
   "contact.name":"Imię i nazwisko","contact.company":"Firma","contact.email":"E-mail","contact.message":"Wiadomość","contact.placeholder":"Proszę opowiedzieć nam o swoim produkcie, rynkach i wolumenach...",
-  "contact.submit":"Wyślij wiadomość","contact.success":"Dziękujemy — odpowiemy w ciągu jednego dnia roboczego.","contact.error":"Coś poszło nie tak — proszę napisać bezpośrednio na business@delivery-consult.com.",
-  "footer.tagline":"Globalna infrastruktura łańcucha dostaw: zakupy, magazynowanie i dostawa w 24–48h w 19 krajach.",
+  "contact.submit":"Wyślij wiadomość","contact.success":"Dziękujemy — odpowiemy w ciągu jednego dnia roboczego.","contact.error":"Coś poszło nie tak — proszę napisać bezpośrednio na adres business@delivery-consult.com.",
+  "footer.tagline":"Globalna infrastruktura łańcucha dostaw: zakupy, magazynowanie i dostawa w ciągu 24⁠–⁠48 godzin w 19 krajach.",
   "footer.navTitle":"Nawigacja","footer.contactTitle":"Kontakt","footer.legal":"© 2026 VITAWAVE LTD. Wszelkie prawa zastrzeżone."
 }
 };
@@ -1163,15 +1254,24 @@ document.querySelectorAll('.lang-menu button').forEach(btn=>{
 document.addEventListener('click',(e)=>{
   if(!langSwitch.contains(e.target)) langSwitch.classList.remove('open');
 });
-document.querySelectorAll('.drawer-lang button').forEach(btn=>{
-  btn.addEventListener('click', ()=> applyLang(btn.getAttribute('data-lang')));
-});
-
 const mobileDrawer = document.getElementById('mobileDrawer');
-document.getElementById('burgerBtn').addEventListener('click', ()=> mobileDrawer.classList.add('open'));
-document.getElementById('drawerClose').addEventListener('click', ()=> mobileDrawer.classList.remove('open'));
-mobileDrawer.addEventListener('click', (e)=>{ if(e.target === mobileDrawer) mobileDrawer.classList.remove('open'); });
-mobileDrawer.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mobileDrawer.classList.remove('open')));
+/* Lock the page behind the drawer: without this the background scrolls under
+   the overlay on touch devices, which reads as a broken menu. */
+function setDrawer(open){
+  mobileDrawer.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+document.querySelectorAll('.drawer-lang button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    applyLang(btn.getAttribute('data-lang'));
+    setTimeout(()=> setDrawer(false), 260); // let the active state flip, then return to the page
+  });
+});
+document.getElementById('burgerBtn').addEventListener('click', ()=> setDrawer(true));
+document.getElementById('drawerClose').addEventListener('click', ()=> setDrawer(false));
+mobileDrawer.addEventListener('click', (e)=>{ if(e.target === mobileDrawer) setDrawer(false); });
+mobileDrawer.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> setDrawer(false)));
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') setDrawer(false); });
 
 /* ===================== SCROLL REVEAL ===================== */
 const io = new IntersectionObserver((entries)=>{
@@ -1181,11 +1281,37 @@ const io = new IntersectionObserver((entries)=>{
       io.unobserve(entry.target);
     }
   });
-},{threshold:0.15});
+},{threshold:0, rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.reveal, .stagger').forEach(el=> io.observe(el));
+/* Scroll-based safety net. IntersectionObserver can miss tall blocks on short
+   viewports and fast/inertial scrolling on phones; content must never stay invisible. */
+function sweepReveal(){
+  document.querySelectorAll('.reveal:not(.is-visible), .stagger:not(.is-visible)').forEach(el=>{
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight * 1.15 && r.bottom > -240) el.classList.add('is-visible');
+  });
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    if (el.dataset.counted) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) animateCount(el);
+  });
+}
+let sweepTick = false;
+function queueSweep(){
+  if (sweepTick) return;
+  sweepTick = true;
+  requestAnimationFrame(()=>{ sweepTick = false; sweepReveal(); });
+}
+window.addEventListener('scroll', queueSweep, {passive:true});
+window.addEventListener('resize', queueSweep, {passive:true});
+window.addEventListener('orientationchange', queueSweep, {passive:true});
+window.addEventListener('load', ()=> setTimeout(sweepReveal, 300));
+setTimeout(sweepReveal, 1200);
 
 /* ===================== COUNTERS ===================== */
 function animateCount(el){
+  if (el.dataset.counted) return;
+  el.dataset.counted = '1';
   const target = parseFloat(el.getAttribute('data-count'));
   const prefix = el.getAttribute('data-prefix') || '';
   const suffix = el.getAttribute('data-suffix') || '';
@@ -1208,7 +1334,7 @@ const counterIo = new IntersectionObserver((entries)=>{
       counterIo.unobserve(entry.target);
     }
   });
-},{threshold:0.4});
+},{threshold:0.25});
 document.querySelectorAll('[data-count]').forEach(el=> counterIo.observe(el));
 
 /* ===================== LAZY VIDEO LOAD ===================== */
